@@ -1,0 +1,73 @@
+{% set app_port = port | default(3000) %}
+# ── Build stage ──────────────────────────────────────────────────────────────
+FROM node:{{ version }}-slim AS builder
+
+WORKDIR /app
+
+{% if package_manager == "yarn" %}
+COPY package.json yarn.lock* ./
+RUN yarn install --frozen-lockfile
+{% elif package_manager == "pnpm" %}
+RUN corepack enable
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
+{% elif package_manager == "bun" %}
+COPY package.json bun.lockb* ./
+RUN npm install -g bun && bun install --frozen-lockfile
+{% else %}
+COPY package*.json ./
+RUN npm ci
+{% endif %}
+
+COPY . .
+
+{% if framework in ["next", "nuxt", "vite", "remix", "astro"] %}
+RUN npm run build
+{% endif %}
+
+# ── Runtime stage ─────────────────────────────────────────────────────────────
+FROM node:{{ version }}-slim
+
+# Install curl for the HEALTHCHECK probe
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Run as a non-root user
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
+WORKDIR /app
+
+{% if framework == "next" %}
+# Copy Next.js standalone output for minimal image size
+COPY --from=builder --chown=appuser:appgroup /app/.next/standalone ./
+COPY --from=builder --chown=appuser:appgroup /app/.next/static ./.next/static
+COPY --from=builder --chown=appuser:appgroup /app/public ./public
+{% elif framework == "nuxt" %}
+COPY --from=builder --chown=appuser:appgroup /app/.output ./.output
+{% elif framework == "vite" or framework == "astro" %}
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
+RUN npm install -g serve
+{% else %}
+# Copy application code and production node_modules
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --chown=appuser:appgroup . .
+{% endif %}
+
+USER appuser
+
+EXPOSE {{ app_port }}
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:{{ app_port }}/ || exit 1
+
+{% if framework == "next" %}
+CMD ["node", "server.js"]
+{% elif framework == "nuxt" %}
+CMD ["node", ".output/server/index.mjs"]
+{% elif framework == "vite" or framework == "astro" %}
+CMD ["serve", "dist", "-l", "{{ app_port }}"]
+{% elif framework == "remix" %}
+CMD ["npm", "start"]
+{% else %}
+CMD ["node", "index.js"]
+{% endif %}

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "open-di"
+version = "0.1.0-alpha"
+description = "A FOSS, upgraded alternative to docker init — scaffolds Dockerfiles and compose.yaml without Docker Desktop"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "jinja2>=3.1.4",
+]
+
+[project.scripts]
+open-di = "open_di.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/your-org/open-di"
+Issues = "https://github.com/your-org/open-di/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["open_di"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

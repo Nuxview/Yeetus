@@ -1,0 +1,33 @@
+FROM python:{{ version }}-slim
+
+WORKDIR /app
+
+{% if package_manager == "uv" %}
+RUN pip install --no-cache-dir uv
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --frozen --no-dev
+{% elif package_manager == "poetry" %}
+RUN pip install --no-cache-dir poetry
+COPY pyproject.toml poetry.lock* ./
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-interaction --no-ansi
+{% else %}
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+{% endif %}
+
+COPY . .
+
+{% if port %}
+EXPOSE {{ port }}
+{% endif %}
+
+{% if framework == "fastapi" or framework == "starlette" or framework == "uvicorn" %}
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "{{ port | default(8000) }}"]
+{% elif framework == "flask" %}
+CMD ["flask", "run", "--host=0.0.0.0", "--port={{ port | default(5000) }}"]
+{% elif framework == "django" %}
+CMD ["python", "manage.py", "runserver", "0.0.0.0:{{ port | default(8000) }}"]
+{% else %}
+CMD ["python", "main.py"]
+{% endif %}

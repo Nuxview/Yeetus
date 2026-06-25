@@ -1,0 +1,40 @@
+FROM node:{{ version }}-slim
+
+WORKDIR /app
+
+{% if package_manager == "yarn" %}
+COPY package.json yarn.lock* ./
+RUN yarn install --frozen-lockfile
+{% elif package_manager == "pnpm" %}
+RUN corepack enable
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
+{% elif package_manager == "bun" %}
+COPY package.json bun.lockb* ./
+RUN npm install -g bun && bun install --frozen-lockfile
+{% else %}
+COPY package*.json ./
+RUN npm ci
+{% endif %}
+
+COPY . .
+
+{% if framework in ["next", "nuxt", "vite", "remix", "astro"] %}
+RUN npm run build
+{% endif %}
+
+{% if port %}
+EXPOSE {{ port }}
+{% endif %}
+
+{% if framework == "next" %}
+CMD ["npm", "start"]
+{% elif framework == "nuxt" %}
+CMD ["node", ".output/server/index.mjs"]
+{% elif framework == "remix" %}
+CMD ["npm", "start"]
+{% elif framework == "vite" or framework == "astro" %}
+CMD ["npm", "run", "preview", "--", "--host"]
+{% else %}
+CMD ["node", "index.js"]
+{% endif %}

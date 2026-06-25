@@ -1,0 +1,45 @@
+FROM python:{{ version }}-slim
+
+# Install curl for the HEALTHCHECK probe
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Run as a non-root user
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
+WORKDIR /app
+
+# ── Install dependencies before copying code (maximises layer-cache re-use) ──
+{% if package_manager == "uv" %}
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --frozen --no-dev --no-cache
+{% elif package_manager == "poetry" %}
+RUN pip install --no-cache-dir poetry
+COPY pyproject.toml poetry.lock* ./
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-interaction --no-ansi
+{% else %}
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+{% endif %}
+
+COPY --chown=appuser:appgroup . .
+
+USER appuser
+
+{% set app_port = port | default(8000) %}
+EXPOSE {{ app_port }}
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:{{ app_port }}/health || exit 1
+
+{% if framework == "fastapi" or framework == "starlette" or framework == "uvicorn" %}
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "{{ app_port }}"]
+{% elif framework == "flask" %}
+CMD ["flask", "run", "--host=0.0.0.0", "--port={{ app_port }}"]
+{% elif framework == "django" %}
+CMD ["gunicorn", "wsgi:application", "--bind", "0.0.0.0:{{ app_port }}", "--workers", "2"]
+{% else %}
+CMD ["python", "main.py"]
+{% endif %}
