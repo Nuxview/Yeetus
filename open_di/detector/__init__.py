@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 # Imported lazily inside detect_stack to avoid circular-import issues at
 # package initialisation time, but the imports are fine here in practice.

@@ -26,12 +26,16 @@ class StackInfo:
     framework: str | None = None
     """Identified framework, e.g. 'fastapi', 'next', 'express'."""
     package_manager: str | None = None
-    """Package manager in use: 'pip'/'uv'/'poetry' for Python; 'npm'/'yarn'/'pnpm' for Node."""
+    """
+    Package manager in use: 'pip'/'uv'/ for Python; 'npm'/'yarn'/'pnpm' for Node.
+    """
     extras: dict = field(default_factory=dict)
     """Catch-all for stack-specific metadata (e.g. {'is_typescript': True})."""
 
     def display(self) -> str:
-        """Return a short human-readable description, e.g. 'python v3.12 (fastapi) [uv]'."""
+        """
+        Return a short human-readable description, e.g. 'python v3.12 (fastapi) [uv]'.
+        """
         parts = [self.stack.value]
         if self.version:
             parts.append(f"v{self.version}")
