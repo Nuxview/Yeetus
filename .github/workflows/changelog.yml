@@ -1,0 +1,151 @@
+name: Update Changelog on Merge
+
+on:
+  # Use pull_request_target to run with write permissions for fork PRs while checking out the base branch only.
+  pull_request_target:
+    types: [closed]
+    branches:
+      - main
+      - master
+
+jobs:
+  update-changelog:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Collect commit information
+        id: collect_commits
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_MERGED_AT: ${{ github.event.pull_request.merged_at }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          echo "Collecting commits for PR #${PR_NUMBER}..."
+
+          # Fetch all commits in this PR
+          COMMITS_JSON=$(gh api repos/${REPO}/pulls/${PR_NUMBER}/commits --paginate)
+
+          # Build a markdown list of commits with sha, date, and message
+          COMMIT_ENTRIES=$(echo "$COMMITS_JSON" | jq -r '
+            .[] |
+            "- **`\(.sha[0:7])`** (\(.commit.author.date[:10])): \(.commit.message | split("\n")[0])"
+          ')
+
+          # Fetch changed files
+          FILES_JSON=$(gh api repos/${REPO}/pulls/${PR_NUMBER}/files --paginate)
+          CHANGED_FILES=$(echo "$FILES_JSON" | jq -r '
+            .[] | "  - `\(.filename)` (\(.status))"
+          ')
+
+          # Write to temp file to avoid shell escaping issues
+          # Format the merged-at timestamp (GitHub Actions always runs on Ubuntu/GNU coreutils)
+          MERGED_AT_FORMATTED=$(date -u -d "${PR_MERGED_AT}" '+%Y-%m-%d %H:%M:%S UTC')
+
+          {
+            printf '## %s — PR #%s: %s\n' "${MERGED_AT_FORMATTED}" "${PR_NUMBER}" "${PR_TITLE//%/%%}"
+            echo ""
+            echo "**Author:** @${PR_AUTHOR}  "
+            echo "**Merge commit:** \`${MERGE_COMMIT_SHA}\`  "
+            echo "**Merged at:** ${PR_MERGED_AT}"
+            echo ""
+            echo "### Commits"
+            echo ""
+            echo "${COMMIT_ENTRIES}"
+            echo ""
+            echo "### Changed Files"
+            echo ""
+            echo "${CHANGED_FILES}"
+            echo ""
+            echo "---"
+            echo ""
+          } > /tmp/new_entry.md
+
+          echo "New changelog entry:"
+          cat /tmp/new_entry.md
+
+      - name: Prepend entry to CHANGELOG.md
+        run: |
+          CHANGELOG="CHANGELOG.md"
+
+          # Ensure the docs directory and file exist
+          mkdir -p docs
+
+          if [ ! -f "$CHANGELOG" ]; then
+            {
+              echo "# Changelog"
+              echo ""
+              echo "All notable changes merged to \`main\` or \`master\` are recorded here."
+              echo "Entries are prepended automatically when a pull request is approved and merged."
+              echo ""
+              echo "---"
+              echo ""
+            } > "$CHANGELOG"
+          fi
+
+          # Insert the new entry after the header block (after the first '---' separator)
+          HEADER_END=$(grep -n "^---$" "$CHANGELOG" | head -1 | cut -d: -f1)
+
+          if [ -n "$HEADER_END" ]; then
+            HEAD_LINES=$((HEADER_END))
+            head -n "$HEAD_LINES" "$CHANGELOG" > /tmp/changelog_head.md
+            tail -n +"$((HEAD_LINES + 1))" "$CHANGELOG" > /tmp/changelog_tail.md
+            {
+              cat /tmp/changelog_head.md
+              echo ""
+              cat /tmp/new_entry.md
+              cat /tmp/changelog_tail.md
+            } > "$CHANGELOG"
+          else
+            # No separator found – prepend the new entry before any existing content
+            cat /tmp/new_entry.md "$CHANGELOG" > /tmp/changelog_merged.md
+            mv /tmp/changelog_merged.md "$CHANGELOG"
+          fi
+
+          echo "Updated CHANGELOG.md:"
+          cat "$CHANGELOG"
+
+      - name: Commit and push changelog update
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "docs: update changelog for PR #${PR_NUMBER} — ${PR_TITLE}"
+            for attempt in 1 2 3; do
+              if git push origin "${TARGET_BRANCH}"; then
+                echo "Push succeeded."
+                exit 0
+              fi
+              echo "Push failed (attempt ${attempt}). Fetching latest and retrying..."
+              git fetch origin "${TARGET_BRANCH}"
+              if ! git rebase "origin/${TARGET_BRANCH}"; then
+                echo "Rebase failed; aborting retry loop."
+                git rebase --abort
+                exit 1
+              fi
+            done
+            echo "Push failed after 3 attempts."
+            exit 1
+          fi
