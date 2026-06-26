@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
 
 from open_di.models import StackInfo
 
@@ -24,7 +23,7 @@ class BaseDetector(ABC):
         ...
 
     @abstractmethod
-    def detect(self, path: Path) -> Optional[StackInfo]:
+    def detect(self, path: Path) -> StackInfo | None:
         """Inspect *path* and return :class:`~open_di.models.StackInfo` or ``None``.
 
         Args:

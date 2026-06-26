@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -39,7 +38,7 @@ def _root() -> None:
 
 @app.command()
 def init(
-    path: Optional[Path] = typer.Option(
+    path: Path | None = typer.Option(
         None,
         "--path",
         "-p",
@@ -187,7 +186,7 @@ def _configure_part(
 
 def _resolve_stack(abs_path: Path, display_path: Path) -> StackInfo:
     """Auto-detect the stack and let the user confirm or override."""
-    detected: Optional[StackInfo] = None
+    detected: StackInfo | None = None
 
     if abs_path.exists():
         with console.status(
@@ -249,7 +248,7 @@ def _ask_stack_manually() -> StackInfo:
         Stack.NODE: ["npm", "yarn", "pnpm"],
     }.get(stack, [])
 
-    package_manager: Optional[str] = None
+    package_manager: str | None = None
     if pkg_choices:
         package_manager = Prompt.ask(
             "  [bold]Package manager[/bold]",
@@ -266,7 +265,7 @@ def _ask_stack_manually() -> StackInfo:
     )
 
 
-def _ask_port(used_ports: set[int]) -> Optional[int]:
+def _ask_port(used_ports: set[int]) -> int | None:
     """Ask for a host port, repeating on collisions or bad input."""
     while True:
         raw = Prompt.ask(

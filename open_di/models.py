@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class Stack(str, Enum):
@@ -22,11 +21,11 @@ class StackInfo:
     """Describes the detected (or manually specified) tech stack for one service."""
 
     stack: Stack
-    version: Optional[str] = None
+    version: str | None = None
     """Runtime version string, e.g. '3.12' for Python or '20' for Node."""
-    framework: Optional[str] = None
+    framework: str | None = None
     """Identified framework, e.g. 'fastapi', 'next', 'express'."""
-    package_manager: Optional[str] = None
+    package_manager: str | None = None
     """Package manager in use: 'pip'/'uv'/'poetry' for Python; 'npm'/'yarn'/'pnpm' for Node."""
     extras: dict = field(default_factory=dict)
     """Catch-all for stack-specific metadata (e.g. {'is_typescript': True})."""
@@ -53,7 +52,7 @@ class ProjectPart:
     """Path relative to the project root, e.g. './backend'."""
     stack_info: StackInfo
     boilerplate: BoilerplateLevel
-    port: Optional[int] = None
+    port: int | None = None
     """Host port to expose, e.g. 8000."""
     env_vars: dict[str, str] = field(default_factory=dict)
 
@@ -64,7 +63,7 @@ class ComposeService:
 
     name: str
     build_context: str
-    port: Optional[int] = None
+    port: int | None = None
     depends_on: list[str] = field(default_factory=list)
     env_vars: dict[str, str] = field(default_factory=dict)
     volumes: list[str] = field(default_factory=list)

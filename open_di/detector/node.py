@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Optional
 
 from open_di.detector.base import BaseDetector
 from open_di.models import Stack, StackInfo
@@ -56,7 +55,7 @@ class NodeDetector(BaseDetector):
     def name(self) -> str:
         return "Node"
 
-    def detect(self, path: Path) -> Optional[StackInfo]:
+    def detect(self, path: Path) -> StackInfo | None:
         pkg_file = path / "package.json"
         if not pkg_file.exists():
             return None
@@ -79,7 +78,7 @@ class NodeDetector(BaseDetector):
 
     # ── helpers ────────────────────────────────────────────────────────────
 
-    def _detect_version(self, path: Path, pkg: dict) -> Optional[str]:
+    def _detect_version(self, path: Path, pkg: dict) -> str | None:
         # .nvmrc
         for fname in (".nvmrc", ".node-version"):
             nv = path / fname
@@ -97,7 +96,7 @@ class NodeDetector(BaseDetector):
 
         return None
 
-    def _detect_framework(self, pkg: dict) -> Optional[str]:
+    def _detect_framework(self, pkg: dict) -> str | None:
         all_deps: dict[str, str] = {
             **pkg.get("dependencies", {}),
             **pkg.get("devDependencies", {}),

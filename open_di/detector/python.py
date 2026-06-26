@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Optional
 
 from open_di.detector.base import BaseDetector
 from open_di.models import Stack, StackInfo
@@ -37,7 +36,7 @@ class PythonDetector(BaseDetector):
     def name(self) -> str:
         return "Python"
 
-    def detect(self, path: Path) -> Optional[StackInfo]:
+    def detect(self, path: Path) -> StackInfo | None:
         if not any((path / marker).exists() for marker in _MARKERS):
             return None
 
@@ -50,7 +49,7 @@ class PythonDetector(BaseDetector):
 
     # ── helpers ────────────────────────────────────────────────────────────
 
-    def _detect_version(self, path: Path) -> Optional[str]:
+    def _detect_version(self, path: Path) -> str | None:
         # pyenv / mise style .python-version
         pv = path / ".python-version"
         if pv.exists():
@@ -70,7 +69,7 @@ class PythonDetector(BaseDetector):
 
         return None
 
-    def _detect_framework(self, path: Path) -> Optional[str]:
+    def _detect_framework(self, path: Path) -> str | None:
         candidates: list[str] = []
 
         req = path / "requirements.txt"

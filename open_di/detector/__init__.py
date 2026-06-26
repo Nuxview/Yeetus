@@ -17,7 +17,7 @@ _DETECTORS = [
 ]
 
 
-def detect_stack(path: Path) -> Optional[StackInfo]:
+def detect_stack(path: Path) -> StackInfo | None:
     """Run every registered detector against *path* and return the first match.
 
     Returns ``None`` when no detector recognises the stack.
