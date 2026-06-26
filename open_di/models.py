@@ -10,7 +10,6 @@ from typing import Optional
 class Stack(str, Enum):
     PYTHON = "python"
     NODE = "node"
-    GO = "go"
 
 
 class BoilerplateLevel(str, Enum):

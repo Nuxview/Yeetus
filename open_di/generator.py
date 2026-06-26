@@ -14,7 +14,6 @@ _TEMPLATES_DIR = Path(__file__).parent / "templates"
 _DEFAULT_VERSIONS: dict[Stack, str] = {
     Stack.PYTHON: "3.12",
     Stack.NODE: "20",
-    Stack.GO: "1.23",
 }
 
 

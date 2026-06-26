@@ -19,11 +19,19 @@ from open_di.models import BoilerplateLevel, ProjectPart, Stack, StackInfo
 
 app = typer.Typer(
     name="open-di",
-    help="Open-source alternative to docker init. Scaffolds Dockerfiles and a unified compose.yaml.",
     add_completion=False,
     no_args_is_help=True,
 )
 console = Console()
+
+
+@app.callback()
+def _root() -> None:
+    """Open-source alternative to docker init.
+
+    Scaffolds Dockerfiles and a unified compose.yaml for Python and Node projects
+    without requiring Docker Desktop.
+    """
 
 
 # ── Commands ──────────────────────────────────────────────────────────────────
@@ -31,11 +39,11 @@ console = Console()
 
 @app.command()
 def init(
-    root: Optional[Path] = typer.Option(
+    path: Optional[Path] = typer.Option(
         None,
-        "--root",
-        "-r",
-        help="Project root directory. Defaults to the current directory.",
+        "--path",
+        "-p",
+        help="Target project directory. Defaults to the current working directory.",
         show_default=False,
     ),
     dry_run: bool = typer.Option(
@@ -46,7 +54,7 @@ def init(
 ) -> None:
     """Interactively scaffold Dockerfiles and a unified compose.yaml."""
 
-    project_root = (root or Path.cwd()).resolve()
+    project_root = (path or Path.cwd()).resolve()
 
     console.print()
     console.print(
@@ -64,7 +72,7 @@ def init(
 
     # ── How many services? ────────────────────────────────────────────────
     count = IntPrompt.ask(
-        "[bold]How many services / parts does your project have?[/bold]",
+        "[bold]How many services does your project have?[/bold]",
         default=1,
         console=console,
     )
@@ -213,7 +221,7 @@ def _ask_stack_manually() -> StackInfo:
     """Prompt the user to fully describe a stack."""
     stack_str = Prompt.ask(
         "  [bold]Stack[/bold]",
-        choices=["python", "node", "go"],
+        choices=["python", "node"],
         console=console,
     )
     stack = Stack(stack_str)
@@ -239,7 +247,6 @@ def _ask_stack_manually() -> StackInfo:
     pkg_choices: list[str] = {
         Stack.PYTHON: ["pip", "uv", "poetry"],
         Stack.NODE: ["npm", "yarn", "pnpm"],
-        Stack.GO: [],
     }.get(stack, [])
 
     package_manager: Optional[str] = None

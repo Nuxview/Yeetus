@@ -19,7 +19,7 @@
 ### Detected stacks (Phase 1)
 
 | Stack  | Marker files | Frameworks | Package managers |
-|--------|-------------|------------|-----------------|
+|--------|-------------|------------|------------------|
 | Python | `requirements.txt`, `pyproject.toml`, `setup.py`, `uv.lock`, `Pipfile` | fastapi, flask, django, starlette, litestar… | pip, uv, poetry |
 | Node   | `package.json` | next, nuxt, remix, astro, express, fastify, vite… | npm, yarn, pnpm, bun |
 
@@ -47,12 +47,23 @@ uv run open-di init
 ## Usage
 
 ```
-open-di [OPTIONS]
+open-di init [OPTIONS]
 
 Options:
-  -r, --root PATH   Project root directory (default: current directory)
+  -p, --path PATH   Target project directory (default: current directory)
   --dry-run         Print what would be generated without writing files
   --help            Show this message and exit
+```
+
+**Run in the current directory:**
+```bash
+open-di init
+```
+
+**Run for a project in a different directory:**
+```bash
+open-di init --path /path/to/project
+open-di init -p /path/to/project
 ```
 
 ### Example session
@@ -132,7 +143,7 @@ open-di/
 | 1 | ✅ Done | Core generator · Python + Node · minimal + full boilerplate · unified compose |
 | 2 | Planned | Go stack · `.env.example` generation |
 | 3 | Planned | `depends_on` wiring · shared networks & volumes · cross-service env refs |
-| 4 | Planned | `open-di add` to append services to an existing compose.yaml |
+| 4 | Planned | `open-di init add` to append services to an existing compose.yaml |
 
 ---
 
