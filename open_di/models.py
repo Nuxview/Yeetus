@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 
-class Stack(str, Enum):
+class Stack(StrEnum):
     PYTHON = "python"
     NODE = "node"
 
 
-class BoilerplateLevel(str, Enum):
+class BoilerplateLevel(StrEnum):
     MINIMAL = "minimal"
     FULL = "full"
 
