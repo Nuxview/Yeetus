@@ -149,4 +149,4 @@ open-di/
 
 ## License
 
-MIT
+[MIT](LICENSE)
