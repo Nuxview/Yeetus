@@ -1,7 +1,3 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "open-di"
 version = "0.1.0-alpha"
@@ -9,21 +5,52 @@ description = "A FOSS, upgraded alternative to docker init — scaffolds Dockerf
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
+
 dependencies = [
     "typer>=0.12.0",
     "rich>=13.7.0",
     "jinja2>=3.1.4",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest"]
+
+keywords = [
+    "docker",
+    "compose",
+    "scaffold",
+    "foss",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Build Tools",
+    "Docker :: Compose"
+]
+
 [project.scripts]
 open-di = "open_di.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/your-org/open-di"
-Issues = "https://github.com/your-org/open-di/issues"
+Homepage = "https://github.com/Nuxview/Open-DI"
+Issues = "https://github.com/Nuxview/Open-DI/issues"
 
-[tool.hatch.build.targets.wheel]
-packages = ["open_di"]
+[build-system]
+requires = ["setuptools>=77.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["open_di"]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
