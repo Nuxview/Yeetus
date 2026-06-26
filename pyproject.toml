@@ -13,23 +13,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
-
-keywords = [
-    "docker",
-    "compose",
-    "scaffold",
-    "foss",
-]
-
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Topic :: Software Development :: Build Tools",
-    "Docker :: Compose"
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.4.0",
 ]
 
 [project.scripts]
