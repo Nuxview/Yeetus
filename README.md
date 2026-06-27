@@ -1,8 +1,13 @@
 # Open-DI
 
+![Last commit](https://img.shields.io/github/last-commit/Nuxview/Project-Tree)
+![Repo size](https://img.shields.io/github/repo-size/Nuxview/Project-Tree)
+![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-0B5FFF?logo=opensourceinitiative&logoColor=white)
+
 > A FOSS, upgraded alternative to `docker init` — works without Docker Desktop.
 
-`open-di` scaffolds `Dockerfile`s and a unified `compose.yaml` for multi-service projects, targeting users running standalone Docker Engine (e.g. on Arch/CachyOS, Debian, or any Linux without Docker Desktop).
+`open-di` scaffolds `Dockerfile`s and a unified `compose.yaml` for multi-service projects, targeting users running standalone Docker Engine.
 
 ---
 
