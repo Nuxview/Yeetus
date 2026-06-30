@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from open_di.models import ComposeConfig, ComposeService, ProjectPart
+from open_di.models import ComposeConfig, ComposeService, ProjectPart, Stack
 
 
 class PortCollisionError(ValueError):
@@ -37,10 +37,15 @@ def build_compose_config(parts: list[ProjectPart]) -> ComposeConfig:
                 )
             used_ports[part.port] = part.name
 
+        # nginx always listens on port 80 inside the container; the user's
+        # chosen port is the host side of the mapping.
+        container_port = 80 if part.stack_info.stack == Stack.STATIC else None
+
         service = ComposeService(
             name=part.name,
             build_context=part.path,
             port=part.port,
+            container_port=container_port,
             env_vars=dict(part.env_vars),
         )
         config.services.append(service)

@@ -23,10 +23,11 @@
 
 ### Detected stacks (Phase 1)
 
-| Stack  | Marker files | Frameworks | Package managers |
-|--------|-------------|------------|------------------|
+| Stack  | Marker files | Frameworks detected | Package managers |
+|--------|-------------|---------------------|------------------|
 | Python | `requirements.txt`, `pyproject.toml`, `setup.py`, `uv.lock`, `Pipfile` | fastapi, flask, django, starlette, litestar… | pip, uv, poetry |
 | Node   | `package.json` | next, nuxt, remix, astro, express, fastify, vite… | npm, yarn, pnpm, bun |
+| Static | `index.html`, `*.html` | — (served by nginx) | — |
 
 ---
 

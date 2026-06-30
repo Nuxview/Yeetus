@@ -1,0 +1,46 @@
+FROM nginx:{{ version }}
+
+# Replace the default config with a production-ready one.
+# Enables gzip compression and SPA-friendly routing (try_files falls back to
+# index.html so client-side routers work without 404s on hard refreshes).
+RUN rm /etc/nginx/conf.d/default.conf \
+    && printf '%s\n' \
+        'server {' \
+        '    listen 80;' \
+        '    server_name _;' \
+        '    root /usr/share/nginx/html;' \
+        '    index index.html;' \
+        '' \
+        '    gzip on;' \
+        '    gzip_vary on;' \
+        '    gzip_types text/plain text/css application/json' \
+        '               application/javascript text/xml application/xml' \
+        '               text/javascript image/svg+xml;' \
+        '' \
+        '    # Serve pre-compressed .gz files when available' \
+        '    gzip_static on;' \
+        '' \
+        '    location / {' \
+        '        try_files $uri $uri/ /index.html;' \
+        '    }' \
+        '' \
+        '    # Long-lived cache for hashed assets, no-cache for HTML' \
+        '    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$ {' \
+        '        expires 1y;' \
+        '        add_header Cache-Control "public, immutable";' \
+        '    }' \
+        '' \
+        '    location ~* \.html$ {' \
+        '        add_header Cache-Control "no-cache";' \
+        '    }' \
+        '}' \
+    > /etc/nginx/conf.d/default.conf
+
+COPY . /usr/share/nginx/html
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget -q -O /dev/null http://localhost/ || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

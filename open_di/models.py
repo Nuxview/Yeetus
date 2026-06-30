@@ -9,6 +9,7 @@ from enum import StrEnum
 class Stack(StrEnum):
     PYTHON = "python"
     NODE = "node"
+    STATIC = "static"
 
 
 class BoilerplateLevel(StrEnum):
@@ -110,6 +111,12 @@ class ComposeService:
     networks: list[str] = field(default_factory=list)
     """
     Networks to join for this service.
+    """
+    container_port: int | None = None
+    """
+    The port the process listens on inside the container.
+    When set, compose renders ``host_port:container_port`` instead of
+    ``host_port:host_port``.  None means both sides use the same port number.
     """
 
 

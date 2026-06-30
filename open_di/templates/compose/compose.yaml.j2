@@ -6,7 +6,7 @@ services:
       context: {{ service.build_context }}
 {% if service.port %}
     ports:
-      - "{{ service.port }}:{{ service.port }}"
+      - "{{ service.port }}:{{ service.container_port if service.container_port else service.port }}"
 {% endif %}
 {% if service.depends_on %}
     depends_on:

@@ -8,11 +8,15 @@ from pathlib import Path
 # package initialisation time, but the imports are fine here in practice.
 from open_di.detector.node import NodeDetector
 from open_di.detector.python import PythonDetector
+from open_di.detector.static import StaticDetector
 from open_di.models import StackInfo
 
+# Order matters: more specific detectors run first so that, e.g., a Node
+# project with an index.html is not misidentified as a static site.
 _DETECTORS = [
     PythonDetector(),
     NodeDetector(),
+    StaticDetector(),
 ]
 
 

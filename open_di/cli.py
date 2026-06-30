@@ -220,28 +220,36 @@ def _ask_stack_manually() -> StackInfo:
     """Prompt the user to fully describe a stack."""
     stack_str = Prompt.ask(
         "  [bold]Stack[/bold]",
-        choices=["python", "node"],
+        choices=["python", "node", "static"],
         console=console,
     )
     stack = Stack(stack_str)
 
+    version_hint = (
+        "nginx image tag, e.g. stable-alpine or 1.27-alpine"
+        if stack == Stack.STATIC
+        else "blank = use default"
+    )
     version = (
         Prompt.ask(
-            "  [bold]Runtime version[/bold] [dim](blank = use default)[/dim]",
+            f"  [bold]Version[/bold] [dim]({version_hint})[/dim]",
             default="",
             console=console,
         ).strip()
         or None
     )
 
-    framework = (
-        Prompt.ask(
-            "  [bold]Framework[/bold] [dim](blank = none)[/dim]",
-            default="",
-            console=console,
-        ).strip()
-        or None
-    )
+    # Framework and package manager are not applicable to static sites.
+    framework: str | None = None
+    if stack != Stack.STATIC:
+        framework = (
+            Prompt.ask(
+                "  [bold]Framework[/bold] [dim](blank = none)[/dim]",
+                default="",
+                console=console,
+            ).strip()
+            or None
+        )
 
     pkg_choices: list[str] = {
         Stack.PYTHON: ["pip", "uv", "poetry"],
