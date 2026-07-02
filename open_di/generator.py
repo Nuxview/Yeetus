@@ -12,8 +12,8 @@ _TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 # Sensible runtime version defaults when the detector cannot pin one.
 _DEFAULT_VERSIONS: dict[Stack, str] = {
-    Stack.PYTHON: "3.12",
-    Stack.NODE: "20",
+    Stack.PYTHON: "3.14",
+    Stack.NODE: "24",
     Stack.STATIC: "stable-alpine",
 }
 

@@ -9,6 +9,10 @@ class PortCollisionError(ValueError):
     """Raised when two services claim the same host port."""
 
 
+class ServiceNameCollisionError(ValueError):
+    """Raised when two services claim the same name."""
+
+
 def build_compose_config(parts: list[ProjectPart]) -> ComposeConfig:
     """Construct a :class:`~open_di.models.ComposeConfig` from *parts*.
 
@@ -24,11 +28,19 @@ def build_compose_config(parts: list[ProjectPart]) -> ComposeConfig:
 
     Raises:
         PortCollisionError: If two parts declare the same host port.
+        ServiceNameCollisionError: If two parts declare the same name.
     """
     config = ComposeConfig()
     used_ports: dict[int, str] = {}  # port → service name
+    used_names: set[str] = set()  # service names
 
     for part in parts:
+        if part.name in used_names:
+            raise ServiceNameCollisionError(
+                f"Service '{part.name}' is declared more than once."
+            )
+        used_names.add(part.name)
+
         if part.port is not None:
             if part.port in used_ports:
                 raise PortCollisionError(

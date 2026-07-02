@@ -23,11 +23,13 @@ _FRAMEWORK_MAP: dict[str, str] = {
     "fastapi": "fastapi",
     "flask": "flask",
     "django": "django",
-    "starlette": "starlette",
-    "litestar": "litestar",
-    "sanic": "sanic",
-    "tornado": "tornado",
     "uvicorn": "uvicorn",
+    # Intentionally not included to reduce testing overhead:
+    # They'll be WIP after the stable release
+    # "starlette": "starlette",
+    # "litestar": "litestar",
+    # "sanic": "sanic",
+    # "tornado": "tornado",
 }
 
 

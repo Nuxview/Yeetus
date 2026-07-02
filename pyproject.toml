@@ -1,6 +1,6 @@
 [project]
 name = "open-di"
-version = "0.1.0-alpha"
+version = "0.2.0-alpha"
 description = "A FOSS, upgraded alternative to docker init — scaffolds Dockerfiles and compose.yaml without Docker Desktop"
 readme = "README.md"
 license = { text = "MIT" }

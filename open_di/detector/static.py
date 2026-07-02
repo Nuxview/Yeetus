@@ -22,7 +22,6 @@ _DISQUALIFIERS = [
     "setup.cfg",
     "uv.lock",
     "Pipfile",
-    "go.mod",
 ]
 
 

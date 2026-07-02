@@ -42,7 +42,7 @@ uv tool install open-di
 **From source:**
 
 ```bash
-git clone https://github.com/your-org/open-di
+git clone https://github.com/Nuxview/Open-DI
 cd open-di
 uv sync
 uv run open-di init
@@ -133,10 +133,12 @@ open-di/
     ├── detector/
     │   ├── base.py         # BaseDetector ABC
     │   ├── python.py       # Python detector
-    │   └── node.py         # Node detector
+    │   ├── node.py         # Node detector
+    │   └── static.py       # Static detector
     └── templates/
         ├── python/         # Dockerfile.minimal.j2  Dockerfile.full.j2
         ├── node/           # Dockerfile.minimal.j2  Dockerfile.full.j2
+        ├── static/         # Dockerfile.minimal.j2  Dockerfile.full.j2
         └── compose/        # compose.yaml.j2
 ```
 
@@ -146,8 +148,8 @@ open-di/
 
 | Phase | Status | Scope |
 |-------|--------|-------|
-| 1 | ✅ Done | Core generator · Python + Node · minimal + full boilerplate · unified compose |
-| 2 | Planned | Go stack · `.env.example` generation |
+| 1 | Done | Core generator · Python + Node + Static · minimal + full boilerplate · unified compose |
+| 2 | Planned | `.env.example` generation |
 | 3 | Planned | `depends_on` wiring · shared networks & volumes · cross-service env refs |
 | 4 | Planned | `open-di init add` to append services to an existing compose.yaml |
 

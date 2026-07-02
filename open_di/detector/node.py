@@ -12,33 +12,39 @@ from open_di.models import Stack, StackInfo
 # Maps a canonical framework key to the npm package name to look for.
 _FRAMEWORK_DEPS: dict[str, str] = {
     "next": "next",
-    "nuxt": "nuxt",
-    "remix": "@remix-run/node",
-    "astro": "astro",
-    "express": "express",
-    "fastify": "fastify",
-    "koa": "koa",
-    "nestjs": "@nestjs/core",
     "vite": "vite",
     "react": "react",
     "vue": "vue",
-    "svelte": "svelte",
+    # Intentionally not included to reduce testing overhead:
+    # They'll be WIP after the stable release
+    # "nuxt": "nuxt",
+    # "remix": "@remix-run/node",
+    # "astro": "astro",
+    # "express": "express",
+    # "fastify": "fastify",
+    # "koa": "koa",
+    # "nestjs": "@nestjs/core",
+    # "svelte": "svelte",
 }
 
 # Framework detection priority (first match wins).
 _PRIORITY = [
     "next",
-    "nuxt",
-    "remix",
-    "astro",
-    "nestjs",
-    "express",
-    "fastify",
-    "koa",
     "vite",
     "react",
     "vue",
-    "svelte",
+    # Intentionally not included to reduce testing overhead:
+    # They'll be WIP after the stable release
+    # "nuxt",
+    # "remix",
+    # "astro",
+    # "express",
+    # "fastify",
+    # "koa",
+    # "vite",
+    # "react",
+    # "vue",
+    # "svelte",
 ]
 
 # Maps lockfile names to package manager identifiers.
