@@ -15,16 +15,6 @@ _FRAMEWORK_DEPS: dict[str, str] = {
     "vite": "vite",
     "react": "react",
     "vue": "vue",
-    # Intentionally not included to reduce testing overhead:
-    # They'll be WIP after the stable release
-    # "nuxt": "nuxt",
-    # "remix": "@remix-run/node",
-    # "astro": "astro",
-    # "express": "express",
-    # "fastify": "fastify",
-    # "koa": "koa",
-    # "nestjs": "@nestjs/core",
-    # "svelte": "svelte",
 }
 
 # Framework detection priority (first match wins).
@@ -33,18 +23,6 @@ _PRIORITY = [
     "vite",
     "react",
     "vue",
-    # Intentionally not included to reduce testing overhead:
-    # They'll be WIP after the stable release
-    # "nuxt",
-    # "remix",
-    # "astro",
-    # "express",
-    # "fastify",
-    # "koa",
-    # "vite",
-    # "react",
-    # "vue",
-    # "svelte",
 ]
 
 # Maps lockfile names to package manager identifiers.

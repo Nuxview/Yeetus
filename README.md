@@ -144,17 +144,6 @@ open-di/
 
 ---
 
-## Roadmap
-
-| Phase | Status | Scope |
-|-------|--------|-------|
-| 1 | Done | Core generator · Python + Node + Static · minimal + full boilerplate · unified compose |
-| 2 | Planned | `.env.example` generation |
-| 3 | Planned | `depends_on` wiring · shared networks & volumes · cross-service env refs |
-| 4 | Planned | `open-di init add` to append services to an existing compose.yaml |
-
----
-
 ## License
 
 [MIT](LICENSE)
