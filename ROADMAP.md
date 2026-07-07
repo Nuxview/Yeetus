@@ -92,3 +92,28 @@ Here is the current project overview along with a one-liner on what each file do
 ├── ROADMAP.md                            # This file
 └── uv.lock                               # Lock file for the project dependencies
 ```
+
+### Yet to be implemented
+1. Tests for each of the stack types. I'm talking bout both minimal and full templates generation.
+2. Prompt to pull or build the docker image for the stack type
+
+### Exit Criteria
+1. Correct stack detection for python, node, and static html files
+2. Correct dockerfile generation (both minimal and full)
+3. Correct docker compose wiring (excluding networks, volumes, env and environment)
+4. All soon to be created tests passing
+
+## Phase 2 (Planned)
+We only care about `env` related entries in this phase.
+That is, wiring up:
+1. `.env.example` generation
+2. `env` variable references across services
+3. `environment` variable references across services
+
+## Phase 3 (Planned)
+| 3 | Planned | `depends_on` wiring · shared networks & volumes · cross-service env refs |
+
+## Phase 4 (Planned)
+| 4 | Planned | `open-di init add` to append services to an existing compose.yaml |
+
+---
