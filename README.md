@@ -1,13 +1,13 @@
-# Open-DI
+# Yeetus
 
 ![Last commit](https://img.shields.io/github/last-commit/Nuxview/Project-Tree)
 ![Repo size](https://img.shields.io/github/repo-size/Nuxview/Project-Tree)
 ![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-0B5FFF?logo=opensourceinitiative&logoColor=white)
 
-> A FOSS, upgraded alternative to `docker init` — works without Docker Desktop.
+> A FOSS, upgraded alternative to `docker init` that works without Docker Desktop.
 
-`open-di` scaffolds `Dockerfile`s and a unified `compose.yaml` for multi-service projects, targeting users running standalone Docker Engine.
+`yeetus` scaffolds `Dockerfile`s and a unified `compose.yaml` for multi-service projects, targeting users running standalone Docker Engine.
 
 ---
 
@@ -36,16 +36,16 @@
 **With [uv](https://github.com/astral-sh/uv) (recommended):**
 
 ```bash
-uv tool install open-di
+uv tool install yeetus
 ```
 
 **From source:**
 
 ```bash
-git clone https://github.com/Nuxview/Open-DI
-cd open-di
+git clone https://github.com/Nuxview/Yeetus
+cd yeetus
 uv sync
-uv run open-di init
+uv run yeetus init
 ```
 
 ---
@@ -53,7 +53,7 @@ uv run open-di init
 ## Usage
 
 ```
-open-di init [OPTIONS]
+yeetus init [OPTIONS]
 
 Options:
   -p, --path PATH   Target project directory (default: current directory)
@@ -63,22 +63,22 @@ Options:
 
 **Run in the current directory:**
 ```bash
-open-di init
+yeetus init
 ```
 
 **Run for a project in a different directory:**
 ```bash
-open-di init --path /path/to/project
-open-di init -p /path/to/project
+yeetus init --path /path/to/project
+yeetus init -p /path/to/project
 ```
 
 ### Example session
 
 ```
-$ open-di init
+$ yeetus init
 
 ╭─────────────────────────────────────────╮
-│ open-di  v0.1.0                         │
+│ yeetus  v0.1.0                         │
 │ Scaffolding my-app  /home/user/my-app   │
 ╰─────────────────────────────────────────╯
 
@@ -123,9 +123,9 @@ Done!  Build and start your project:
 ## Project structure
 
 ```
-open-di/
+yeetus/
 ├── pyproject.toml
-└── open_di/
+└── yeetus/
     ├── cli.py              # Entry point — Typer app + interactive prompts
     ├── models.py           # Dataclasses: ProjectPart, StackInfo, ComposeConfig
     ├── generator.py        # Jinja2 template renderer → Dockerfile / compose.yaml

@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from open_di.detector.base import BaseDetector
-from open_di.models import Stack, StackInfo
+from yeetus.detector.base import BaseDetector
+from yeetus.models import Stack, StackInfo
 
 # Any of these files signals a Python project.
 _MARKERS = [

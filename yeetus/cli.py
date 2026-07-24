@@ -10,11 +10,11 @@ from rich.panel import Panel
 from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.table import Table
 
-from open_di import __version__
-from open_di.compose_builder import PortCollisionError, build_compose_config
-from open_di.detector import detect_stack
-from open_di.generator import Generator
-from open_di.models import BoilerplateLevel, ProjectPart, Stack, StackInfo
+from yeetus import __version__
+from yeetus.compose_builder import PortCollisionError, build_compose_config
+from yeetus.detector import detect_stack
+from yeetus.generator import Generator
+from yeetus.models import BoilerplateLevel, ProjectPart, Stack, StackInfo
 
 app = typer.Typer(
     name="open-di",

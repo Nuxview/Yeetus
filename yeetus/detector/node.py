@@ -6,8 +6,8 @@ import json
 import re
 from pathlib import Path
 
-from open_di.detector.base import BaseDetector
-from open_di.models import Stack, StackInfo
+from yeetus.detector.base import BaseDetector
+from yeetus.models import Stack, StackInfo
 
 # Maps a canonical framework key to the npm package name to look for.
 _FRAMEWORK_DEPS: dict[str, str] = {

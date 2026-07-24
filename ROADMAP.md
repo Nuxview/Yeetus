@@ -1,5 +1,5 @@
 # Roadmap
-This document outlines the roadmap for the Open-DI project.
+This document outlines the roadmap for the Yeetus project.
 Currently, the project is divided into four phases.
 
 > DISCLAIMER: 
@@ -54,7 +54,7 @@ Here is the current project overview along with a one-liner on what each file do
 │       ├── changelog.yml                 # Updates CHANGELOG.md
 │       └── ci.yml                        # Runs linting and tests
 │
-├── open_di
+├── yeetus
 │   ├── detector
 │   │   ├── __init__.py                   # Runs stack detection
 │   │   ├── base.py                       # Base stack detection logic imported by other detectors
@@ -114,6 +114,6 @@ That is, wiring up:
 | 3 | Planned | `depends_on` wiring · shared networks & volumes · cross-service env refs |
 
 ## Phase 4 (Planned)
-| 4 | Planned | `open-di init add` to append services to an existing compose.yaml |
+| 4 | Planned | `yeet init add` to append services to an existing compose.yaml |
 
 ---

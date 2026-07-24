@@ -6,7 +6,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
-from open_di.models import ComposeConfig, ProjectPart, Stack
+from yeetus.models import ComposeConfig, ProjectPart, Stack
 
 _TEMPLATES_DIR = Path(__file__).parent / "templates"
 

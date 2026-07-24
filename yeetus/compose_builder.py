@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from open_di.models import ComposeConfig, ComposeService, ProjectPart, Stack
+from yeetus.models import ComposeConfig, ComposeService, ProjectPart, Stack
 
 
 class PortCollisionError(ValueError):

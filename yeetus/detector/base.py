@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from open_di.models import StackInfo
+from yeetus.models import StackInfo
 
 
 class BaseDetector(ABC):

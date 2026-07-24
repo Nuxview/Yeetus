@@ -1,5 +1,5 @@
 [project]
-name = "open-di"
+name = "yeetus"
 version = "0.2.0-alpha"
 description = "A FOSS, upgraded alternative to docker init — scaffolds Dockerfiles and compose.yaml without Docker Desktop"
 readme = "README.md"
@@ -19,18 +19,18 @@ dev = [
 ]
 
 [project.scripts]
-open-di = "open_di.cli:main"
+yeet = "yeetus.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/Nuxview/Open-DI"
-Issues = "https://github.com/Nuxview/Open-DI/issues"
+Homepage = "https://github.com/Nuxview/Yeetus"
+Issues = "https://github.com/Nuxview/Yeetus/issues"
 
 [build-system]
 requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["open_di"]
+include = ["yeetus"]
 
 [[tool.uv.index]]
 name = "testpypi"

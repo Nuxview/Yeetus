@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from open_di.detector.base import BaseDetector
-from open_di.models import Stack, StackInfo
+from yeetus.detector.base import BaseDetector
+from yeetus.models import Stack, StackInfo
 
 # A directory is considered static when it has an index.html at its root.
 # Glob fallback: any .html file at the root level.
