@@ -1,4 +1,4 @@
-"""CLI entry point for open-di."""
+"""CLI entry point for yeetus."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from yeetus.generator import Generator
 from yeetus.models import BoilerplateLevel, ProjectPart, Stack, StackInfo
 
 app = typer.Typer(
-    name="open-di",
+    name="yeetus",
     add_completion=False,
     no_args_is_help=True,
 )
@@ -48,6 +48,7 @@ def init(
     dry_run: bool = typer.Option(
         False,
         "--dry-run",
+        "-dr",
         help="Show what would be generated without writing any files.",
     ),
 ) -> None:
@@ -58,7 +59,7 @@ def init(
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]open-di[/bold cyan]  [dim]v{__version__}[/dim]\n"
+            f"[bold cyan]yeetus[/bold cyan]  [dim]v{__version__}[/dim]\n"
             f"Scaffolding [bold]{project_root.name}[/bold]  "
             f"[dim]{project_root}[/dim]",
             border_style="cyan",
