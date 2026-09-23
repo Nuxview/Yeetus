@@ -1,0 +1,11 @@
+{
+  "name": "dummy-vite",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  }
+}

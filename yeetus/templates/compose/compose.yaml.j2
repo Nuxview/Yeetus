@@ -1,0 +1,23 @@
+services:
+{% for service in services %}
+  {{ service.name }}:
+    build:
+      context: {{ service.context }}
+      dockerfile: {{ service.dockerfile }}
+    ports:
+      - "{{ service.port }}:{{ service.target_port }}"
+{% if service.env_file %}
+    env_file:
+      - path: {{ service.env_file }}
+        required: false
+{% endif %}
+{% if service.depends_on %}
+    depends_on:
+{% for dep in service.depends_on %}
+      - {{ dep }}
+{% endfor %}
+{% endif %}
+{% if service.restart %}
+    restart: {{ service.restart }}
+{% endif %}
+{% endfor %}

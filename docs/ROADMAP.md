@@ -14,121 +14,121 @@
 
 ---
 
-## Phase 0 — Project Setup ⬜
+## Phase 0 — Project Setup ✅
 
-- [ ] `pyproject.toml` with all dependencies (typer, rich, jinja2, pydantic/dataclasses)
-- [ ] Basic package structure scaffolded (`yeetus/`, `tests/`)
-- [ ] `pytest` + `pytest-xdist` configured
+- [x] `pyproject.toml` with all dependencies (typer, rich, jinja2, pydantic/dataclasses)
+- [x] Basic package structure scaffolded (`yeetus/`, `tests/`)
+- [x] `pytest` + `pytest-xdist` configured
 
 ---
 
-## Phase 1 — Test Infrastructure (TDD First) ⬜
+## Phase 1 — Test Infrastructure (TDD First) ✅
 
 > All tests must be written and failing before any implementation begins.
 
 ### Fixtures — Dummy Repos
-- [ ] `tests/fixtures/python-flask/`
-- [ ] `tests/fixtures/python-fastapi/`
-- [ ] `tests/fixtures/python-django/`
-- [ ] `tests/fixtures/node-nextjs/`
-- [ ] `tests/fixtures/node-react/`
-- [ ] `tests/fixtures/node-vite/`
-- [ ] `tests/fixtures/node-vue/`
-- [ ] `tests/fixtures/static-html/`
+- [x] `tests/fixtures/python-flask/`
+- [x] `tests/fixtures/python-fastapi/`
+- [x] `tests/fixtures/python-django/`
+- [x] `tests/fixtures/node-nextjs/`
+- [x] `tests/fixtures/node-react/`
+- [x] `tests/fixtures/node-vite/`
+- [x] `tests/fixtures/node-vue/`
+- [x] `tests/fixtures/static-html/`
 
 ### Expected Output Snapshots
-- [ ] `tests/expected/python-flask-minimal/`
-- [ ] `tests/expected/python-flask-full/`
-- [ ] `tests/expected/python-fastapi-minimal/`
-- [ ] `tests/expected/python-fastapi-full/`
-- [ ] `tests/expected/python-django-minimal/`
-- [ ] `tests/expected/python-django-full/`
-- [ ] `tests/expected/node-nextjs-minimal/`
-- [ ] `tests/expected/node-nextjs-full/`
-- [ ] `tests/expected/node-react-minimal/`
-- [ ] `tests/expected/node-react-full/`
-- [ ] `tests/expected/node-vite-minimal/`
-- [ ] `tests/expected/node-vite-full/`
-- [ ] `tests/expected/node-vue-minimal/`
-- [ ] `tests/expected/node-vue-full/`
-- [ ] `tests/expected/static-html-minimal/`
-- [ ] `tests/expected/static-html-full/`
+- [x] `tests/expected/python-flask-minimal/`
+- [x] `tests/expected/python-flask-full/`
+- [x] `tests/expected/python-fastapi-minimal/`
+- [x] `tests/expected/python-fastapi-full/`
+- [x] `tests/expected/python-django-minimal/`
+- [x] `tests/expected/python-django-full/`
+- [x] `tests/expected/node-nextjs-minimal/`
+- [x] `tests/expected/node-nextjs-full/`
+- [x] `tests/expected/node-react-minimal/`
+- [x] `tests/expected/node-react-full/`
+- [x] `tests/expected/node-vite-minimal/`
+- [x] `tests/expected/node-vite-full/`
+- [x] `tests/expected/node-vue-minimal/`
+- [x] `tests/expected/node-vue-full/`
+- [x] `tests/expected/static-html-minimal/`
+- [x] `tests/expected/static-html-full/`
 
 ### Test Suite
-- [ ] `tests/conftest.py` — shared fixtures, tmp dir setup
-- [ ] `tests/test_generation.py` — parametrized across all 16 combos
-  - [ ] Files exist and are non-empty
-  - [ ] Content matches snapshots
-  - [ ] `docker compose config` passes
-  - [ ] `docker build` passes
+- [x] `tests/conftest.py` — shared fixtures, tmp dir setup
+- [x] `tests/test_generation.py` — parametrized across all 16 combos
+  - [x] Files exist and are non-empty
+  - [x] Content matches snapshots
+  - [x] `docker compose config` passes
+  - [x] `docker build` passes
 
 ---
 
-## Phase 2 — Core Implementation ⬜
+## Phase 2 — Core Implementation ✅
 
 > Implement until all 16 tests pass.
 
 ### Data Models (`models.py`)
-- [ ] `StackInfo` dataclass
-- [ ] `ProjectPart` dataclass
-- [ ] `ComposeConfig` dataclass
+- [x] `StackInfo` dataclass
+- [x] `ProjectPart` dataclass
+- [x] `ComposeConfig` dataclass
 
 ### Detectors (`detector/`)
-- [ ] `base.py` — shared `detect(path) -> StackInfo | None` interface
-- [ ] `python.py` — detects Flask / FastAPI / Django via `requirements.txt`, `pyproject.toml`, `uv.lock`
-- [ ] `node.py` — detects Next.js / React / Vite / Vue via `package.json` dependency inspection
-- [ ] `static.py` — detects static HTML via `index.html` with no `package.json`
+- [x] `base.py` — shared `detect(path) -> StackInfo | None` interface
+- [x] `python.py` — detects Flask / FastAPI / Django via `requirements.txt`, `pyproject.toml`, `uv.lock`
+- [x] `node.py` — detects Next.js / React / Vite / Vue via `package.json` dependency inspection
+- [x] `static.py` — detects static HTML via `index.html` with no `package.json`
 
 ### Templates (`templates/`)
 
 **Python**
-- [ ] `python/Dockerfile.minimal.j2`
-- [ ] `python/Dockerfile.full.j2` (non-root user, HEALTHCHECK, layer caching, .env.example)
+- [x] `python/Dockerfile.minimal.j2`
+- [x] `python/Dockerfile.full.j2` (non-root user, HEALTHCHECK, layer caching, .env.example)
 
 **Node**
-- [ ] `node/Dockerfile.minimal.j2`
-- [ ] `node/Dockerfile.full.j2`
+- [x] `node/Dockerfile.minimal.j2`
+- [x] `node/Dockerfile.full.j2`
 
 **Static HTML**
-- [ ] `static/Dockerfile.minimal.j2`
-- [ ] `static/Dockerfile.full.j2`
+- [x] `static/Dockerfile.minimal.j2`
+- [x] `static/Dockerfile.full.j2`
 
 **Compose**
-- [ ] `compose/compose.yaml.j2`
+- [x] `compose/compose.yaml.j2`
 
 ### Generator & Compose Builder
-- [ ] `generator.py` — renders Jinja2 templates to files
-- [ ] `compose_builder.py` — builds unified `ComposeConfig` from all `ProjectPart`s, handles:
-  - [ ] Inter-service `depends_on`
-  - [ ] Shared networks and volumes
-  - [ ] Cross-service env var references
-  - [ ] Port collision detection
+- [x] `generator.py` — renders Jinja2 templates to files
+- [x] `compose_builder.py` — builds unified `ComposeConfig` from all `ProjectPart`s, handles:
+  - [x] Inter-service `depends_on`
+  - [x] Shared networks and volumes
+  - [x] Cross-service env var references
+  - [x] Port collision detection
 
 ### CLI (`cli.py`)
-- [ ] `init` command entry point
-- [ ] Prompts for project parts (name, path)
-- [ ] Runs detectors and presents results for confirmation/override
-- [ ] Prompts for boilerplate level (minimal / full)
-- [ ] Calls generator and compose builder
-- [ ] Outputs summary of generated files
+- [x] `init` command entry point
+- [x] Prompts for project parts (name, path)
+- [x] Runs detectors and presents results for confirmation/override
+- [x] Prompts for boilerplate level (minimal / full)
+- [x] Calls generator and compose builder
+- [x] Outputs summary of generated files
 
 ---
 
-## Phase 3 — Multi-Project Support ⬜
+## Phase 3 — Multi-Project Support ✅
 
-- [ ] Accept multiple project parts in a single `yeetus init` run
-- [ ] Generate a Dockerfile per part in its respective subdirectory
-- [ ] Wire all parts into one unified `compose.yaml`
+- [x] Accept multiple project parts in a single `yeetus init` run
+- [x] Generate a Dockerfile per part in its respective subdirectory
+- [x] Wire all parts into one unified `compose.yaml`
 
 ---
 
-## Phase 4 — Polish ⬜
+## Phase 4 — Polish ✅
 
-- [ ] `--dry-run` flag (preview output without writing files)
-- [ ] `--no-detection` flag (skip auto-detection, prompt for everything)
-- [ ] Conflict handling (warn if Dockerfile already exists)
-- [ ] README generation per part
-- [ ] Proper CLI help text and `--version`
+- [x] `--dry-run` flag (preview output without writing files)
+- [x] `--no-detection` flag (skip auto-detection, prompt for everything)
+- [x] Conflict handling (warn if Dockerfile already exists)
+- [x] README generation per part
+- [x] Proper CLI help text and `--version`
 
 ---
 

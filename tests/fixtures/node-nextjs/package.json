@@ -1,0 +1,10 @@
+{
+  "name": "dummy-nextjs",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.0"
+  }
+}
