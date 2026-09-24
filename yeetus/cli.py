@@ -166,6 +166,14 @@ def init(
             help="Generate README.docker.md documentation",
         ),
     ] = True,
+    entrypoint: Annotated[
+        str | None,
+        typer.Option(
+            "--entrypoint",
+            "-e",
+            help="Main Python entrypoint file (e.g. app.py, main.py, manage.py)",
+        ),
+    ] = None,
 ):
     """Initialize Dockerfile and unified compose.yaml for a project."""
     root_dir = (path or Path.cwd()).resolve()
@@ -202,6 +210,12 @@ def init(
             part_dir = (root_dir / subpath_str).resolve()
 
             stack_info = _resolve_stack(part_dir, no_detection)
+            if stack_info.stack_type == "python":
+                py_file = _resolve_python_entrypoint(
+                    part_dir, stack_info.framework, entrypoint
+                )
+                stack_info = stack_info.with_entrypoint(py_file)
+
             part_level = _resolve_level(level)
             port_str = Prompt.ask("Port to expose", default=str(stack_info.port))
             port = int(port_str)
@@ -240,6 +254,12 @@ def init(
         # Single service
         service_name = "web"
         stack_info = _resolve_stack(root_dir, no_detection)
+        if stack_info.stack_type == "python":
+            py_file = _resolve_python_entrypoint(
+                root_dir, stack_info.framework, entrypoint
+            )
+            stack_info = stack_info.with_entrypoint(py_file)
+
         part_level = _resolve_level(level)
         parts.append(
             ProjectPart(
@@ -337,6 +357,35 @@ def _resolve_stack(path: Path, no_detection: bool) -> StackInfo:
 
     choice = Prompt.ask("Choose framework", choices=framework_list, default="flask")
     return FRAMEWORK_CATALOG[choice]
+
+
+def _resolve_python_entrypoint(
+    part_dir: Path,
+    framework: str,
+    entrypoint_opt: str | None = None,
+) -> str:
+    if entrypoint_opt and entrypoint_opt.strip():
+        return entrypoint_opt.strip()
+
+    if framework == "fastapi":
+        default_file = "main.py"
+    elif framework == "django":
+        default_file = "manage.py"
+    else:
+        default_file = "app.py"
+
+    # If default_file does not exist in part_dir, check if any of the other standard files exist
+    if not (part_dir / default_file).exists():
+        for candidate in ("app.py", "manage.py", "main.py"):
+            if (part_dir / candidate).exists():
+                default_file = candidate
+                break
+
+    try:
+        ans = Prompt.ask("Main Python entrypoint file", default=default_file)
+        return ans.strip() if ans and ans.strip() else default_file
+    except (EOFError, OSError):
+        return default_file
 
 
 def _resolve_level(level_opt: str | None) -> str:

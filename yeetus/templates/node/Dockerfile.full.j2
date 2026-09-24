@@ -1,3 +1,66 @@
+{% if package_manager == 'bun' %}
+FROM oven/bun:1-alpine
+
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+COPY package.json bun.lock* bun.lockb* ./
+RUN bun install
+
+COPY . .
+
+USER bun
+
+EXPOSE {{ port }}
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD bun -e "fetch('http://localhost:{{ port }}/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+
+CMD {{ cmd }}
+{% elif package_manager == 'pnpm' %}
+FROM node:20-alpine
+
+ENV NODE_ENV=production
+
+RUN npm install -g pnpm
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install
+
+COPY . .
+
+USER node
+
+EXPOSE {{ port }}
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:{{ port }}/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
+
+CMD {{ cmd }}
+{% elif package_manager == 'yarn' %}
+FROM node:20-alpine
+
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+COPY package.json yarn.lock* ./
+RUN yarn install
+
+COPY . .
+
+USER node
+
+EXPOSE {{ port }}
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:{{ port }}/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
+
+CMD {{ cmd }}
+{% else %}
 FROM node:20-alpine
 
 ENV NODE_ENV=production
@@ -17,3 +80,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:{{ port }}/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
 
 CMD {{ cmd }}
+{% endif %}

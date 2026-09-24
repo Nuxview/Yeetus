@@ -68,3 +68,60 @@ def test_detect_static_html():
 
 def test_detect_empty_dir(tmp_path):
     assert detect_stack(tmp_path) is None
+
+
+def test_detect_node_pnpm(tmp_path):
+    (tmp_path / "package.json").write_text(
+        '{"name": "test", "dependencies": {"next": "14.0.0"}}'
+    )
+    (tmp_path / "pnpm-lock.yaml").write_text("lockfileVersion: '6.0'")
+    stack_info = detect_stack(tmp_path)
+    assert stack_info is not None
+    assert stack_info.package_manager == "pnpm"
+    assert '["pnpm", "start"]' in stack_info.cmd
+    assert "[pnpm]" in stack_info.description
+
+
+def test_detect_node_yarn(tmp_path):
+    (tmp_path / "package.json").write_text(
+        '{"name": "test", "dependencies": {"react": "18.0.0"}}'
+    )
+    (tmp_path / "yarn.lock").write_text("# yarn lockfile v1")
+    stack_info = detect_stack(tmp_path)
+    assert stack_info is not None
+    assert stack_info.package_manager == "yarn"
+    assert '["yarn", "start"]' in stack_info.cmd
+    assert "[yarn]" in stack_info.description
+
+
+def test_detect_node_bun(tmp_path):
+    (tmp_path / "package.json").write_text(
+        '{"name": "test", "devDependencies": {"vite": "5.0.0"}}'
+    )
+    (tmp_path / "bun.lockb").write_text("")
+    stack_info = detect_stack(tmp_path)
+    assert stack_info is not None
+    assert stack_info.package_manager == "bun"
+    assert '["bun", "run", "dev", "--host"]' in stack_info.cmd
+    assert "[bun]" in stack_info.description
+
+
+def test_detect_node_package_manager_field(tmp_path):
+    (tmp_path / "package.json").write_text(
+        '{"name": "test", "packageManager": "pnpm@9.0.0", "dependencies": {"vue": "3.0.0"}}'
+    )
+    stack_info = detect_stack(tmp_path)
+    assert stack_info is not None
+    assert stack_info.package_manager == "pnpm"
+    assert '["pnpm", "run", "serve"]' in stack_info.cmd
+
+
+def test_detect_python_entrypoints():
+    flask_info = detect_stack(FIXTURES_DIR / "python-flask")
+    assert flask_info.entrypoint == "app.py"
+
+    fastapi_info = detect_stack(FIXTURES_DIR / "python-fastapi")
+    assert fastapi_info.entrypoint == "main.py"
+
+    django_info = detect_stack(FIXTURES_DIR / "python-django")
+    assert django_info.entrypoint == "manage.py"

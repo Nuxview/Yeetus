@@ -35,6 +35,7 @@ class PythonDetector(BaseDetector):
                 cmd='["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]',
                 env_example="PORT=8000\nHOST=0.0.0.0\n",
                 description="Python (FastAPI)",
+                entrypoint="main.py",
             )
         elif re.search(r"(?i)\bflask\b", combined_text):
             return StackInfo(
@@ -44,6 +45,7 @@ class PythonDetector(BaseDetector):
                 cmd='["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]',
                 env_example="FLASK_APP=app.py\nFLASK_ENV=production\nPORT=5000\n",
                 description="Python (Flask)",
+                entrypoint="app.py",
             )
         elif (
             re.search(r"(?i)\bdjango\b", combined_text) or (path / "manage.py").exists()
@@ -55,6 +57,7 @@ class PythonDetector(BaseDetector):
                 cmd='["python", "manage.py", "runserver", "0.0.0.0:8000"]',
                 env_example="SECRET_KEY=change-me-in-production\nDEBUG=False\nALLOWED_HOSTS=localhost,127.0.0.1\nPORT=8000\n",
                 description="Python (Django)",
+                entrypoint="manage.py",
             )
 
         # Default fallback for Python
@@ -65,4 +68,5 @@ class PythonDetector(BaseDetector):
             cmd='["python", "app.py"]',
             env_example="PORT=5000\n",
             description="Python Generic",
+            entrypoint="app.py",
         )

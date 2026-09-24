@@ -26,6 +26,8 @@ class Generator:
             port=part.get_target_port(),
             cmd=part.stack_info.cmd,
             framework=part.stack_info.framework,
+            package_manager=getattr(part.stack_info, "package_manager", "npm"),
+            entrypoint=getattr(part.stack_info, "entrypoint", ""),
         )
 
     def render_compose(self, compose_config: ComposeConfig) -> str:
