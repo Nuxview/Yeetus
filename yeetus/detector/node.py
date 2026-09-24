@@ -1,3 +1,4 @@
+import contextlib
 import json
 from pathlib import Path
 
@@ -12,12 +13,10 @@ class NodeDetector(BaseDetector):
             return None
 
         deps = {}
-        try:
+        with contextlib.suppress(json.JSONDecodeError, OSError):
             data = json.loads(pkg_json.read_text(encoding="utf-8"))
             deps.update(data.get("dependencies", {}))
             deps.update(data.get("devDependencies", {}))
-        except Exception:
-            pass
 
         # Framework detection hierarchy:
         # Check Next.js

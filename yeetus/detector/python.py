@@ -1,3 +1,4 @@
+import contextlib
 import re
 from pathlib import Path
 
@@ -14,20 +15,16 @@ class PythonDetector(BaseDetector):
             path / "Pipfile",
             path / "setup.py",
         ]
-        
+
         has_python_marker = any(m.exists() for m in markers)
-        if not has_python_marker:
-            # Check for any .py files in root
-            if not list(path.glob("*.py")):
-                return None
+        if not has_python_marker and not list(path.glob("*.py")):
+            return None
 
         combined_text = ""
         for m in markers:
             if m.exists() and m.is_file():
-                try:
+                with contextlib.suppress(OSError, UnicodeDecodeError):
                     combined_text += m.read_text(encoding="utf-8") + "\n"
-                except Exception:
-                    pass
 
         # Check framework in combined_text
         if re.search(r"(?i)\bfastapi\b", combined_text):
@@ -48,7 +45,9 @@ class PythonDetector(BaseDetector):
                 env_example="FLASK_APP=app.py\nFLASK_ENV=production\nPORT=5000\n",
                 description="Python (Flask)",
             )
-        elif re.search(r"(?i)\bdjango\b", combined_text) or (path / "manage.py").exists():
+        elif (
+            re.search(r"(?i)\bdjango\b", combined_text) or (path / "manage.py").exists()
+        ):
             return StackInfo(
                 stack_type="python",
                 framework="django",

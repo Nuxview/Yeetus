@@ -20,16 +20,15 @@ STACKS = [
 
 LEVELS = ["minimal", "full"]
 
-PARAMETRIZED_CASES = [
-    (stack, level) for stack in STACKS for level in LEVELS
-]
+PARAMETRIZED_CASES = [(stack, level) for stack in STACKS for level in LEVELS]
+
 
 @pytest.mark.parametrize("stack,level", PARAMETRIZED_CASES)
 def test_generation(stack, level, tmp_path):
     # 1. Copy fixture into tmp_path
     src_fixture = FIXTURES_DIR / stack
     assert src_fixture.exists(), f"Fixture {stack} not found at {src_fixture}"
-    
+
     for item in src_fixture.iterdir():
         if item.is_dir():
             shutil.copytree(item, tmp_path / item.name)
@@ -41,12 +40,16 @@ def test_generation(stack, level, tmp_path):
 
     # 3. Assert files exist and are non-empty
     expected_snapshot_dir = EXPECTED_DIR / f"{stack}-{level}"
-    assert expected_snapshot_dir.exists(), f"Snapshot dir {expected_snapshot_dir} does not exist"
+    assert expected_snapshot_dir.exists(), (
+        f"Snapshot dir {expected_snapshot_dir} does not exist"
+    )
 
     expected_files = [f.name for f in expected_snapshot_dir.iterdir() if f.is_file()]
     for filename in expected_files:
         gen_file = tmp_path / filename
-        assert gen_file.exists(), f"Expected generated file {filename} not found in {tmp_path}"
+        assert gen_file.exists(), (
+            f"Expected generated file {filename} not found in {tmp_path}"
+        )
         assert gen_file.stat().st_size > 0, f"Generated file {filename} is empty"
 
     # 4. Assert content matches expected snapshot
@@ -65,6 +68,7 @@ def test_generation(stack, level, tmp_path):
         cwd=tmp_path,
         capture_output=True,
         text=True,
+        check=False,
     )
     assert compose_proc.returncode == 0, (
         f"`docker compose config` failed for {stack}-{level}:\n"
@@ -78,6 +82,7 @@ def test_generation(stack, level, tmp_path):
             cwd=tmp_path,
             capture_output=True,
             text=True,
+            check=False,
         )
         assert build_proc.returncode == 0, (
             f"`docker build` failed for {stack}-{level}:\n"

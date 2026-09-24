@@ -7,6 +7,7 @@ from yeetus.models import ComposeConfig, ComposeServiceConfig, ProjectPart
 class PortCollisionError(ValueError):
     """Raised when multiple project parts are assigned the same host port."""
 
+
 class ComposeBuilder:
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir

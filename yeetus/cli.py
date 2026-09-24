@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -87,63 +88,84 @@ FRAMEWORK_CATALOG = {
     ),
 }
 
+
 def version_callback(value: bool):
     if value:
-        console.print(f"[bold cyan]Yeetus[/bold cyan] version [bold green]{__version__}[/bold green]")
+        console.print(
+            f"[bold cyan]Yeetus[/bold cyan] version [bold green]{__version__}[/bold green]"
+        )
         raise typer.Exit()
+
 
 @app.callback()
 def main(
-    version: bool | None = typer.Option(
-        None,
-        "--version",
-        "-v",
-        help="Show Yeetus version and exit.",
-        callback=version_callback,
-        is_eager=True,
-    ),
+    version: Annotated[
+        bool | None,
+        typer.Option(
+            "--version",
+            "-v",
+            help="Show Yeetus version and exit.",
+            callback=version_callback,
+            is_eager=True,
+        ),
+    ] = None,
 ):
     """Yeetus CLI tool."""
 
+
 @app.command()
 def init(
-    path: Path | None = typer.Argument(
-        None,
-        help="Target project directory (default: current working directory)",
-    ),
-    level: str | None = typer.Option(
-        None,
-        "--level",
-        "-l",
-        help="Boilerplate level: 'minimal' or 'full'",
-    ),
-    dry_run: bool = typer.Option(
-        False,
-        "--dry-run",
-        help="Preview generated files without writing to disk",
-    ),
-    no_detection: bool = typer.Option(
-        False,
-        "--no-detection",
-        help="Skip auto-detection and prompt manually for tech stack",
-    ),
-    force: bool = typer.Option(
-        False,
-        "--force",
-        "-f",
-        help="Overwrite existing files without prompting",
-    ),
-    multi: bool = typer.Option(
-        False,
-        "--multi",
-        "-m",
-        help="Configure a multi-service project",
-    ),
-    readme: bool = typer.Option(
-        True,
-        "--readme/--no-readme",
-        help="Generate README.docker.md documentation",
-    ),
+    path: Annotated[
+        Path | None,
+        typer.Argument(
+            help="Target project directory (default: current working directory)",
+        ),
+    ] = None,
+    level: Annotated[
+        str | None,
+        typer.Option(
+            "--level",
+            "-l",
+            help="Boilerplate level: 'minimal' or 'full'",
+        ),
+    ] = None,
+    dry_run: Annotated[
+        bool,
+        typer.Option(
+            "--dry-run",
+            help="Preview generated files without writing to disk",
+        ),
+    ] = False,
+    no_detection: Annotated[
+        bool,
+        typer.Option(
+            "--no-detection",
+            help="Skip auto-detection and prompt manually for tech stack",
+        ),
+    ] = False,
+    force: Annotated[
+        bool,
+        typer.Option(
+            "--force",
+            "-f",
+            help="Overwrite existing files without prompting",
+        ),
+    ] = False,
+    multi: Annotated[
+        bool,
+        typer.Option(
+            "--multi",
+            "-m",
+            help="Configure a multi-service project",
+        ),
+    ] = False,
+    readme: Annotated[
+        bool,
+        typer.Option(
+            "--readme/--no-readme",
+            help="Generate README.docker.md documentation",
+        ),
+    ] = True,
 ):
     """Initialize Dockerfile and unified compose.yaml for a project."""
     root_dir = (path or Path.cwd()).resolve()
@@ -164,7 +186,7 @@ def init(
         # Ask interactively if not specified
         try:
             is_multi = Confirm.ask("Is this a multi-service project?", default=False)
-        except Exception:
+        except (EOFError, OSError):
             is_multi = False
 
     if is_multi:
@@ -174,7 +196,9 @@ def init(
             console.print(f"\n[bold cyan]--- Service #{part_idx} ---[/bold cyan]")
             default_name = f"service{part_idx}"
             service_name = Prompt.ask("Service name", default=default_name)
-            subpath_str = Prompt.ask("Subdirectory path (relative to root)", default=service_name)
+            subpath_str = Prompt.ask(
+                "Subdirectory path (relative to root)", default=service_name
+            )
             part_dir = (root_dir / subpath_str).resolve()
 
             stack_info = _resolve_stack(part_dir, no_detection)
@@ -192,7 +216,11 @@ def init(
                     default="",
                 )
                 if dep_input.strip():
-                    depends_on = [d.strip() for d in dep_input.split(",") if d.strip() in existing_services]
+                    depends_on = [
+                        d.strip()
+                        for d in dep_input.split(",")
+                        if d.strip() in existing_services
+                    ]
 
             parts.append(
                 ProjectPart(
@@ -238,7 +266,9 @@ def init(
             conflicts.append(compose_file)
 
         if conflicts:
-            console.print("\n[bold yellow]Warning: The following files already exist:[/bold yellow]")
+            console.print(
+                "\n[bold yellow]Warning: The following files already exist:[/bold yellow]"
+            )
             for c in conflicts:
                 console.print(f"  • [yellow]{c}[/yellow]")
             if not Confirm.ask("Do you want to overwrite them?", default=False):
@@ -259,7 +289,9 @@ def init(
         generated_files.append(readme_path)
 
     # Print summary table
-    table = Table(title="Generated Files" if not dry_run else "Dry Run Preview (No files written)")
+    table = Table(
+        title="Generated Files" if not dry_run else "Dry Run Preview (No files written)"
+    )
     table.add_column("File Path", style="cyan")
     table.add_column("Type", style="green")
     table.add_column("Status", style="magenta")
@@ -274,19 +306,26 @@ def init(
     console.print()
     console.print(table)
     console.print("\n[bold green]Success![/bold green] Next steps:")
-    console.print("  1. Run [cyan]docker compose up --build[/cyan] to start your application.")
+    console.print(
+        "  1. Run [cyan]docker compose up --build[/cyan] to start your application."
+    )
     if any(p.level == "full" for p in parts):
-        console.print("  2. Review [cyan].env.example[/cyan] and create [cyan].env[/cyan] if needed.")
+        console.print(
+            "  2. Review [cyan].env.example[/cyan] and create [cyan].env[/cyan] if needed."
+        )
+
 
 def _resolve_stack(path: Path, no_detection: bool) -> StackInfo:
     if not no_detection:
         detected = detect_stack(path)
         if detected:
-            console.print(f"[green]✓ Detected:[/green] [bold]{detected.description}[/bold]")
+            console.print(
+                f"[green]✓ Detected:[/green] [bold]{detected.description}[/bold]"
+            )
             try:
                 if Confirm.ask("Use this detected tech stack?", default=True):
                     return detected
-            except Exception:
+            except (EOFError, OSError):
                 return detected
 
     # Manual selection
@@ -299,6 +338,7 @@ def _resolve_stack(path: Path, no_detection: bool) -> StackInfo:
     choice = Prompt.ask("Choose framework", choices=framework_list, default="flask")
     return FRAMEWORK_CATALOG[choice]
 
+
 def _resolve_level(level_opt: str | None) -> str:
     if level_opt and level_opt.lower() in ("minimal", "full"):
         return level_opt.lower()
@@ -308,8 +348,9 @@ def _resolve_level(level_opt: str | None) -> str:
             choices=["minimal", "full"],
             default="minimal",
         )
-    except Exception:
+    except (EOFError, OSError):
         return "minimal"
+
 
 def _generate_readme(root_dir: Path, parts: list[ProjectPart]) -> Path:
     lines = [
@@ -321,24 +362,29 @@ def _generate_readme(root_dir: Path, parts: list[ProjectPart]) -> Path:
         "",
     ]
     for p in parts:
-        lines.append(f"- **{p.name}**: {p.stack_info.description} on port `{p.get_port()}` (level: `{p.level}`)")
-    lines.extend([
-        "",
-        "## Quick Start",
-        "",
-        "Build and run all services:",
-        "```bash",
-        "docker compose up --build",
-        "```",
-        "",
-        "Stop all services:",
-        "```bash",
-        "docker compose down",
-        "```",
-    ])
+        lines.append(
+            f"- **{p.name}**: {p.stack_info.description} on port `{p.get_port()}` (level: `{p.level}`)"
+        )
+    lines.extend(
+        [
+            "",
+            "## Quick Start",
+            "",
+            "Build and run all services:",
+            "```bash",
+            "docker compose up --build",
+            "```",
+            "",
+            "Stop all services:",
+            "```bash",
+            "docker compose down",
+            "```",
+        ]
+    )
     readme_path = root_dir / "README.docker.md"
     readme_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return readme_path
+
 
 if __name__ == "__main__":
     app()

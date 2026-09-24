@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List, Optional
 
 from yeetus.detector.base import BaseDetector
 from yeetus.detector.node import NodeDetector
@@ -12,6 +11,7 @@ DETECTORS: list[BaseDetector] = [
     NodeDetector(),
     StaticDetector(),
 ]
+
 
 def detect_stack(path: Path) -> StackInfo | None:
     for detector in DETECTORS:

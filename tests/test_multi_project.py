@@ -65,5 +65,11 @@ def test_multi_project_generation(tmp_path):
     assert "- api" in compose_content
 
     # Run `docker compose config`
-    proc = subprocess.run(["docker", "compose", "config"], cwd=tmp_path, capture_output=True, text=True)
+    proc = subprocess.run(
+        ["docker", "compose", "config"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     assert proc.returncode == 0, f"`docker compose config` failed:\n{proc.stderr}"

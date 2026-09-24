@@ -8,6 +8,7 @@ from yeetus.models import ComposeConfig, ProjectPart, StackInfo
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
+
 class Generator:
     def __init__(self, templates_dir: Path | None = None):
         self.templates_dir = templates_dir or TEMPLATES_DIR
@@ -46,7 +47,9 @@ class Generator:
             ]
         )
 
-    def generate(self, root_dir: Path, parts: list[ProjectPart], dry_run: bool = False) -> list[Path]:
+    def generate(
+        self, root_dir: Path, parts: list[ProjectPart], dry_run: bool = False
+    ) -> list[Path]:
         generated_files: list[Path] = []
         builder = ComposeBuilder(root_dir)
         compose_config = builder.build(parts)
@@ -64,7 +67,9 @@ class Generator:
             if part.level == "full" and part.stack_info.env_example:
                 env_example_path = part_dir / ".env.example"
                 if not dry_run:
-                    env_example_path.write_text(part.stack_info.env_example, encoding="utf-8")
+                    env_example_path.write_text(
+                        part.stack_info.env_example, encoding="utf-8"
+                    )
                 generated_files.append(env_example_path)
 
         # 2. Render and write unified compose.yaml at root_dir
@@ -76,6 +81,7 @@ class Generator:
 
         return generated_files
 
+
 def generate_for_project(
     project_dir: Path,
     level: str = "minimal",
@@ -86,7 +92,9 @@ def generate_for_project(
     if stack_info is None:
         stack_info = detect_stack(project_dir)
         if stack_info is None:
-            raise ValueError(f"Could not auto-detect stack for directory: {project_dir}")
+            raise ValueError(
+                f"Could not auto-detect stack for directory: {project_dir}"
+            )
 
     part = ProjectPart(
         name=service_name,

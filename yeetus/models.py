@@ -5,11 +5,14 @@ from pathlib import Path
 @dataclass
 class StackInfo:
     stack_type: str  # 'python', 'node', 'static'
-    framework: str   # 'flask', 'fastapi', 'django', 'nextjs', 'react', 'vite', 'vue', 'static'
+    framework: (
+        str  # 'flask', 'fastapi', 'django', 'nextjs', 'react', 'vite', 'vue', 'static'
+    )
     port: int
     cmd: str
     env_example: str = ""
     description: str = ""
+
 
 @dataclass
 class ProjectPart:
@@ -30,6 +33,7 @@ class ProjectPart:
     def get_target_port(self) -> int:
         return self.target_port if self.target_port is not None else self.get_port()
 
+
 @dataclass
 class ComposeServiceConfig:
     name: str
@@ -41,6 +45,7 @@ class ComposeServiceConfig:
     depends_on: list[str] = field(default_factory=list)
     volumes: list[str] = field(default_factory=list)
     restart: str | None = None
+
 
 @dataclass
 class ComposeConfig:
