@@ -46,7 +46,7 @@ def test_multi_project_generation(tmp_path):
     )
 
     generator = Generator()
-    generated_files = generator.generate(tmp_path, [backend_part, frontend_part])
+    generator.generate(tmp_path, [backend_part, frontend_part])
 
     # Check that Dockerfile was created in both subdirectories
     assert (backend_dir / "Dockerfile").exists()
