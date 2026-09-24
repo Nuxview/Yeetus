@@ -1,12 +1,12 @@
 import re
 from pathlib import Path
-from typing import Optional
 
 from yeetus.detector.base import BaseDetector
 from yeetus.models import StackInfo
 
+
 class PythonDetector(BaseDetector):
-    def detect(self, path: Path) -> Optional[StackInfo]:
+    def detect(self, path: Path) -> StackInfo | None:
         markers = [
             path / "requirements.txt",
             path / "pyproject.toml",

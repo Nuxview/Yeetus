@@ -1,11 +1,11 @@
 import shutil
 import subprocess
-from pathlib import Path
 
 from tests.conftest import FIXTURES_DIR
-from yeetus.generator import Generator
 from yeetus.detector import detect_stack
+from yeetus.generator import Generator
 from yeetus.models import ProjectPart
+
 
 def test_multi_project_generation(tmp_path):
     backend_dir = tmp_path / "backend"

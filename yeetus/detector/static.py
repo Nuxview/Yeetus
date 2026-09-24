@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import Optional
 
 from yeetus.detector.base import BaseDetector
 from yeetus.models import StackInfo
 
+
 class StaticDetector(BaseDetector):
-    def detect(self, path: Path) -> Optional[StackInfo]:
+    def detect(self, path: Path) -> StackInfo | None:
         index_html = path / "index.html"
         pkg_json = path / "package.json"
         

@@ -1,7 +1,6 @@
 import shutil
-from pathlib import Path
+
 from typer.testing import CliRunner
-import pytest
 
 from tests.conftest import FIXTURES_DIR
 from yeetus import __version__

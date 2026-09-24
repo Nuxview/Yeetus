@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional
+
 from jinja2 import Environment, FileSystemLoader
 
 from yeetus.compose_builder import ComposeBuilder
@@ -9,7 +9,7 @@ from yeetus.models import ComposeConfig, ProjectPart, StackInfo
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 class Generator:
-    def __init__(self, templates_dir: Optional[Path] = None):
+    def __init__(self, templates_dir: Path | None = None):
         self.templates_dir = templates_dir or TEMPLATES_DIR
         self.env = Environment(
             loader=FileSystemLoader(self.templates_dir),
@@ -46,8 +46,8 @@ class Generator:
             ]
         )
 
-    def generate(self, root_dir: Path, parts: List[ProjectPart], dry_run: bool = False) -> List[Path]:
-        generated_files: List[Path] = []
+    def generate(self, root_dir: Path, parts: list[ProjectPart], dry_run: bool = False) -> list[Path]:
+        generated_files: list[Path] = []
         builder = ComposeBuilder(root_dir)
         compose_config = builder.build(parts)
 
@@ -80,9 +80,9 @@ def generate_for_project(
     project_dir: Path,
     level: str = "minimal",
     service_name: str = "web",
-    stack_info: Optional[StackInfo] = None,
+    stack_info: StackInfo | None = None,
     dry_run: bool = False,
-) -> List[Path]:
+) -> list[Path]:
     if stack_info is None:
         stack_info = detect_stack(project_dir)
         if stack_info is None:

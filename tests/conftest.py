@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pytest
 
 TESTS_DIR = Path(__file__).parent

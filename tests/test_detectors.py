@@ -1,7 +1,6 @@
-from pathlib import Path
-import pytest
-from yeetus.detector import detect_stack
 from tests.conftest import FIXTURES_DIR
+from yeetus.detector import detect_stack
+
 
 def test_detect_python_flask():
     stack_info = detect_stack(FIXTURES_DIR / "python-flask")

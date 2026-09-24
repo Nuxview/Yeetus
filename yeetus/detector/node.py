@@ -1,12 +1,12 @@
 import json
 from pathlib import Path
-from typing import Optional
 
 from yeetus.detector.base import BaseDetector
 from yeetus.models import StackInfo
 
+
 class NodeDetector(BaseDetector):
-    def detect(self, path: Path) -> Optional[StackInfo]:
+    def detect(self, path: Path) -> StackInfo | None:
         pkg_json = path / "package.json"
         if not pkg_json.exists():
             return None

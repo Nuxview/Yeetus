@@ -1,10 +1,10 @@
 import os
 import shutil
 import subprocess
-from pathlib import Path
+
 import pytest
 
-from tests.conftest import FIXTURES_DIR, EXPECTED_DIR
+from tests.conftest import EXPECTED_DIR, FIXTURES_DIR
 from yeetus.generator import generate_for_project
 
 STACKS = [

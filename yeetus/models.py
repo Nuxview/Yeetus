@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+
 
 @dataclass
 class StackInfo:
@@ -17,12 +17,12 @@ class ProjectPart:
     path: Path
     stack_info: StackInfo
     level: str = "minimal"  # 'minimal' or 'full'
-    port: Optional[int] = None
-    target_port: Optional[int] = None
-    env_file: Optional[str] = None
-    depends_on: List[str] = field(default_factory=list)
-    volumes: List[str] = field(default_factory=list)
-    restart: Optional[str] = None
+    port: int | None = None
+    target_port: int | None = None
+    env_file: str | None = None
+    depends_on: list[str] = field(default_factory=list)
+    volumes: list[str] = field(default_factory=list)
+    restart: str | None = None
 
     def get_port(self) -> int:
         return self.port if self.port is not None else self.stack_info.port
@@ -37,13 +37,13 @@ class ComposeServiceConfig:
     dockerfile: str = "Dockerfile"
     port: int = 80
     target_port: int = 80
-    env_file: Optional[str] = None
-    depends_on: List[str] = field(default_factory=list)
-    volumes: List[str] = field(default_factory=list)
-    restart: Optional[str] = None
+    env_file: str | None = None
+    depends_on: list[str] = field(default_factory=list)
+    volumes: list[str] = field(default_factory=list)
+    restart: str | None = None
 
 @dataclass
 class ComposeConfig:
-    services: List[ComposeServiceConfig] = field(default_factory=list)
-    networks: List[str] = field(default_factory=list)
-    volumes: List[str] = field(default_factory=list)
+    services: list[ComposeServiceConfig] = field(default_factory=list)
+    networks: list[str] = field(default_factory=list)
+    volumes: list[str] = field(default_factory=list)

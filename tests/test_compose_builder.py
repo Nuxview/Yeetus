@@ -1,8 +1,10 @@
 from pathlib import Path
+
 import pytest
 
 from yeetus.compose_builder import ComposeBuilder, PortCollisionError
 from yeetus.models import ProjectPart, StackInfo
+
 
 def make_dummy_part(name: str, path: Path, port: int, stack_type: str = "python", framework: str = "flask", level: str = "minimal", depends_on=None):
     stack_info = StackInfo(

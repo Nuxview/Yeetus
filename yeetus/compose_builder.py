@@ -1,20 +1,19 @@
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from yeetus.models import ComposeConfig, ComposeServiceConfig, ProjectPart
 
+
 class PortCollisionError(ValueError):
     """Raised when multiple project parts are assigned the same host port."""
-    pass
 
 class ComposeBuilder:
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
 
-    def build(self, parts: List[ProjectPart]) -> ComposeConfig:
-        allocated_ports: Dict[int, str] = {}
-        services: List[ComposeServiceConfig] = []
+    def build(self, parts: list[ProjectPart]) -> ComposeConfig:
+        allocated_ports: dict[int, str] = {}
+        services: list[ComposeServiceConfig] = []
 
         for part in parts:
             host_port = part.get_port()
@@ -33,7 +32,7 @@ class ComposeBuilder:
                 # If part.path is not a subpath of root_dir
                 context = os.path.relpath(part.path, self.root_dir)
 
-            env_file: Optional[str] = None
+            env_file: str | None = None
             if part.level == "full":
                 if context == ".":
                     env_file = ".env"
