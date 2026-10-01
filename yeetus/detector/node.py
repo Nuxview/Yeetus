@@ -5,40 +5,31 @@ from pathlib import Path
 from yeetus.detector.base import BaseDetector
 from yeetus.models import StackInfo
 
+PM_LOCKFILES = {
+    "bun": ("bun.lockb", "bun.lock", "bunfig.toml"),
+    "pnpm": ("pnpm-lock.yaml", "pnpm-workspace.yaml", ".pnpmfile.cjs"),
+    "yarn": ("yarn.lock", ".yarnrc.yml", ".yarnrc"),
+    "npm": ("package-lock.json", "npm-shrinkwrap.json", ".npmrc"),
+}
+
+FRAMEWORKS = (
+    ("next", "nextjs", 3000, '["npm", "start"]', "Node.js (Next.js)"),
+    ("vite", "vite", 5173, '["npm", "run", "dev", "--", "--host"]', "Node.js (Vite)"),
+    ("vue", "vue", 8080, '["npm", "run", "serve"]', "Node.js (Vue)"),
+    ("react", "react", 3000, '["npm", "start"]', "Node.js (React)"),
+)
+
 
 class NodeDetector(BaseDetector):
     def detect_package_manager(self, path: Path, data: dict | None = None) -> str:
-        if data:
-            pm_field = data.get("packageManager", "")
-            if isinstance(pm_field, str):
-                if pm_field.startswith("pnpm"):
-                    return "pnpm"
-                if pm_field.startswith("yarn"):
-                    return "yarn"
-                if pm_field.startswith("bun"):
-                    return "bun"
-                if pm_field.startswith("npm"):
-                    return "npm"
+        if data and isinstance(pm := data.get("packageManager"), str):
+            for candidate in ("pnpm", "yarn", "bun", "npm"):
+                if pm.startswith(candidate):
+                    return candidate
 
-        # Check configuration & lock files for bun
-        bun_files = ["bun.lockb", "bun.lock", "bunfig.toml"]
-        if any((path / f).exists() for f in bun_files):
-            return "bun"
-
-        # Check configuration & lock files for pnpm
-        pnpm_files = ["pnpm-lock.yaml", "pnpm-workspace.yaml", ".pnpmfile.cjs"]
-        if any((path / f).exists() for f in pnpm_files):
-            return "pnpm"
-
-        # Check configuration & lock files for yarn
-        yarn_files = ["yarn.lock", ".yarnrc.yml", ".yarnrc"]
-        if any((path / f).exists() for f in yarn_files):
-            return "yarn"
-
-        # Check configuration & lock files for npm
-        npm_files = ["package-lock.json", "npm-shrinkwrap.json", ".npmrc"]
-        if any((path / f).exists() for f in npm_files):
-            return "npm"
+        for pm_name, files in PM_LOCKFILES.items():
+            if any((path / f).exists() for f in files):
+                return pm_name
 
         return "npm"
 
@@ -47,8 +38,7 @@ class NodeDetector(BaseDetector):
         if not pkg_json.exists():
             return None
 
-        data = {}
-        deps = {}
+        data, deps = {}, {}
         with contextlib.suppress(json.JSONDecodeError, OSError):
             data = json.loads(pkg_json.read_text(encoding="utf-8"))
             deps.update(data.get("dependencies", {}))
@@ -56,56 +46,22 @@ class NodeDetector(BaseDetector):
 
         package_manager = self.detect_package_manager(path, data)
 
-        # Framework detection hierarchy:
-        # Check Next.js
-        if "next" in deps:
-            info = StackInfo(
-                stack_type="node",
-                framework="nextjs",
-                port=3000,
-                cmd='["npm", "start"]',
-                env_example="NODE_ENV=production\nPORT=3000\n",
-                description="Node.js (Next.js)",
-            )
-        # Check Vite
-        elif "vite" in deps:
-            info = StackInfo(
-                stack_type="node",
-                framework="vite",
-                port=5173,
-                cmd='["npm", "run", "dev", "--", "--host"]',
-                env_example="NODE_ENV=production\nPORT=5173\n",
-                description="Node.js (Vite)",
-            )
-        # Check Vue
-        elif "vue" in deps:
-            info = StackInfo(
-                stack_type="node",
-                framework="vue",
-                port=8080,
-                cmd='["npm", "run", "serve"]',
-                env_example="NODE_ENV=production\nPORT=8080\n",
-                description="Node.js (Vue)",
-            )
-        # Check React
-        elif "react" in deps:
-            info = StackInfo(
-                stack_type="node",
-                framework="react",
-                port=3000,
-                cmd='["npm", "start"]',
-                env_example="NODE_ENV=production\nPORT=3000\n",
-                description="Node.js (React)",
-            )
-        # Default fallback for Node
+        for dep, framework, port, cmd, desc in FRAMEWORKS:
+            if dep in deps:
+                break
         else:
-            info = StackInfo(
-                stack_type="node",
-                framework="node",
-                port=3000,
-                cmd='["npm", "start"]',
-                env_example="NODE_ENV=production\nPORT=3000\n",
-                description="Node.js Generic",
+            framework, port, cmd, desc = (
+                "node",
+                3000,
+                '["npm", "start"]',
+                "Node.js Generic",
             )
 
-        return info.with_package_manager(package_manager)
+        return StackInfo(
+            stack_type="node",
+            framework=framework,
+            port=port,
+            cmd=cmd,
+            env_example=f"NODE_ENV=production\nPORT={port}\n",
+            description=desc,
+        ).with_package_manager(package_manager)

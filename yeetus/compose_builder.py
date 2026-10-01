@@ -25,22 +25,12 @@ class ComposeBuilder:
                 )
             allocated_ports[host_port] = part.name
 
-            # Determine context relative to root_dir
-            try:
-                rel_path = part.path.resolve().relative_to(self.root_dir.resolve())
-                context = str(rel_path) if str(rel_path) != "" else "."
-            except ValueError:
-                # If part.path is not a subpath of root_dir
-                context = os.path.relpath(part.path, self.root_dir)
-
-            env_file: str | None = None
-            if part.level == "full":
-                if context == ".":
-                    env_file = ".env"
-                else:
-                    env_file = f"{context}/.env"
-
-            restart = "unless-stopped" if part.level == "full" else None
+            context = os.path.relpath(part.path.resolve(), self.root_dir.resolve())
+            env_file = (
+                (".env" if context == "." else f"{context}/.env")
+                if part.level == "full"
+                else None
+            )
 
             service = ComposeServiceConfig(
                 name=part.name,
@@ -50,8 +40,7 @@ class ComposeBuilder:
                 target_port=part.get_target_port(),
                 env_file=env_file,
                 depends_on=part.depends_on,
-                volumes=part.volumes,
-                restart=restart,
+                restart="unless-stopped" if part.level == "full" else None,
             )
             services.append(service)
 

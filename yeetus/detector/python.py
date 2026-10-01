@@ -9,15 +9,17 @@ from yeetus.models import StackInfo
 class PythonDetector(BaseDetector):
     def detect(self, path: Path) -> StackInfo | None:
         markers = [
-            path / "requirements.txt",
-            path / "pyproject.toml",
-            path / "uv.lock",
-            path / "Pipfile",
-            path / "setup.py",
+            path / m
+            for m in (
+                "requirements.txt",
+                "pyproject.toml",
+                "uv.lock",
+                "Pipfile",
+                "setup.py",
+            )
         ]
 
-        has_python_marker = any(m.exists() for m in markers)
-        if not has_python_marker and not list(path.glob("*.py")):
+        if not any(m.exists() for m in markers) and not any(path.glob("*.py")):
             return None
 
         combined_text = ""

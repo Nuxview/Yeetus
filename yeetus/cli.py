@@ -209,13 +209,7 @@ def init(
             )
             part_dir = (root_dir / subpath_str).resolve()
 
-            stack_info = _resolve_stack(part_dir, no_detection)
-            if stack_info.stack_type == "python":
-                py_file = _resolve_python_entrypoint(
-                    part_dir, stack_info.framework, entrypoint
-                )
-                stack_info = stack_info.with_entrypoint(py_file)
-
+            stack_info = _resolve_stack(part_dir, no_detection, entrypoint)
             part_level = _resolve_level(level)
             port_str = Prompt.ask("Port to expose", default=str(stack_info.port))
             port = int(port_str)
@@ -253,13 +247,7 @@ def init(
     else:
         # Single service
         service_name = "web"
-        stack_info = _resolve_stack(root_dir, no_detection)
-        if stack_info.stack_type == "python":
-            py_file = _resolve_python_entrypoint(
-                root_dir, stack_info.framework, entrypoint
-            )
-            stack_info = stack_info.with_entrypoint(py_file)
-
+        stack_info = _resolve_stack(root_dir, no_detection, entrypoint)
         part_level = _resolve_level(level)
         parts.append(
             ProjectPart(
@@ -272,18 +260,12 @@ def init(
 
     # Check for file conflicts
     if not force and not dry_run:
-        conflicts = []
-        for part in parts:
-            df = part.path / "Dockerfile"
-            if df.exists():
-                conflicts.append(df)
-            if part.level == "full":
-                env_file = part.path / ".env.example"
-                if env_file.exists():
-                    conflicts.append(env_file)
-        compose_file = root_dir / "compose.yaml"
-        if compose_file.exists():
-            conflicts.append(compose_file)
+        potential = [root_dir / "compose.yaml"]
+        for p in parts:
+            potential.append(p.path / "Dockerfile")
+            if p.level == "full":
+                potential.append(p.path / ".env.example")
+        conflicts = [f for f in potential if f.exists()]
 
         if conflicts:
             console.print(
@@ -335,7 +317,10 @@ def init(
         )
 
 
-def _resolve_stack(path: Path, no_detection: bool) -> StackInfo:
+def _resolve_stack(
+    path: Path, no_detection: bool, entrypoint: str | None = None
+) -> StackInfo:
+    info = None
     if not no_detection:
         detected = detect_stack(path)
         if detected:
@@ -344,19 +329,25 @@ def _resolve_stack(path: Path, no_detection: bool) -> StackInfo:
             )
             try:
                 if Confirm.ask("Use this detected tech stack?", default=True):
-                    return detected
+                    info = detected
             except (EOFError, OSError):
-                return detected
+                info = detected
 
-    # Manual selection
-    console.print("[yellow]Please select your framework:[/yellow]")
-    framework_list = list(FRAMEWORK_CATALOG.keys())
-    for idx, fw in enumerate(framework_list, start=1):
-        info = FRAMEWORK_CATALOG[fw]
-        console.print(f"  {idx}) [bold]{fw}[/bold] ({info.description})")
+    if info is None:
+        console.print("[yellow]Please select your framework:[/yellow]")
+        framework_list = list(FRAMEWORK_CATALOG.keys())
+        for idx, fw in enumerate(framework_list, start=1):
+            console.print(
+                f"  {idx}) [bold]{fw}[/bold] ({FRAMEWORK_CATALOG[fw].description})"
+            )
+        choice = Prompt.ask("Choose framework", choices=framework_list, default="flask")
+        info = FRAMEWORK_CATALOG[choice]
 
-    choice = Prompt.ask("Choose framework", choices=framework_list, default="flask")
-    return FRAMEWORK_CATALOG[choice]
+    if info.stack_type == "python":
+        py_file = _resolve_python_entrypoint(path, info.framework, entrypoint)
+        info = info.with_entrypoint(py_file)
+
+    return info
 
 
 def _resolve_python_entrypoint(

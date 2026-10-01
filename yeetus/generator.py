@@ -26,28 +26,13 @@ class Generator:
             port=part.get_target_port(),
             cmd=part.stack_info.cmd,
             framework=part.stack_info.framework,
-            package_manager=getattr(part.stack_info, "package_manager", "npm"),
-            entrypoint=getattr(part.stack_info, "entrypoint", ""),
+            package_manager=part.stack_info.package_manager,
+            entrypoint=part.stack_info.entrypoint,
         )
 
     def render_compose(self, compose_config: ComposeConfig) -> str:
         template = self.env.get_template("compose/compose.yaml.j2")
-        return template.render(
-            services=[
-                {
-                    "name": s.name,
-                    "context": s.context,
-                    "dockerfile": s.dockerfile,
-                    "port": s.port,
-                    "target_port": s.target_port,
-                    "env_file": s.env_file,
-                    "depends_on": s.depends_on,
-                    "volumes": s.volumes,
-                    "restart": s.restart,
-                }
-                for s in compose_config.services
-            ]
-        )
+        return template.render(services=compose_config.services)
 
     def generate(
         self, root_dir: Path, parts: list[ProjectPart], dry_run: bool = False
