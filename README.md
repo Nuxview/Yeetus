@@ -1,4 +1,4 @@
-# Yeetus 🚀
+# Yeetus
 
 > An open-source, upgraded alternative to Docker Desktop's proprietary `docker init` CLI tool, built for developers running standalone Docker Engine on Linux and multi-service architectures.
 
@@ -58,7 +58,7 @@ Docker Desktop includes a handy `docker init` command that scaffolds Docker asse
 ### Install from Source
 Using [`uv`](https://github.com/astral-sh/uv) (recommended):
 ```bash
-git clone https://github.com/nuxview/yeetus.git
+git clone https://github.com/Nuxview/yeetus.git
 cd yeetus
 uv tool install .
 ```
@@ -138,7 +138,7 @@ Yeetus is built with Test-Driven Development (TDD). Every supported stack and le
 ### Run Test Suite
 ```bash
 # Sync dependencies
-uv sync
+uv sync --all-extras
 
 # Run all unit and snapshot tests (skipping container image build)
 SKIP_DOCKER_BUILD=1 uv run pytest
