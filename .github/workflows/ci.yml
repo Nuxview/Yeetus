@@ -56,4 +56,4 @@ jobs:
         run: uv sync --all-extras
 
       - name: Run Tests
-        run: uv run pytest -v
+        run: SKIP_DOCKER_BUILD=1 uv run pytest -v

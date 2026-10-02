@@ -53,7 +53,7 @@ Docker Desktop includes a handy `docker init` command that scaffolds Docker asse
 
 ### Prerequisites
 - Python 3.11+
-- Docker & Docker Compose (Docker Engine 20.10+ / Compose v2+)
+- Docker & Docker Compose (Docker Engine 20.10+ / Compose v2.24+)
 
 ### Install from Source
 Using [`uv`](https://github.com/astral-sh/uv) (recommended):

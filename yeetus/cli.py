@@ -4,7 +4,7 @@ from typing import Annotated
 import typer
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.table import Table
 
 from yeetus import __version__
@@ -211,8 +211,7 @@ def init(
 
             stack_info = _resolve_stack(part_dir, no_detection, entrypoint)
             part_level = _resolve_level(level)
-            port_str = Prompt.ask("Port to expose", default=str(stack_info.port))
-            port = int(port_str)
+            port = IntPrompt.ask("Port to expose", default=stack_info.port)
 
             # Depends on
             existing_services = [p.name for p in parts]
@@ -237,6 +236,7 @@ def init(
                     stack_info=stack_info,
                     level=part_level,
                     port=port,
+                    target_port=stack_info.port,
                     depends_on=depends_on,
                 )
             )
@@ -255,6 +255,8 @@ def init(
                 path=root_dir,
                 stack_info=stack_info,
                 level=part_level,
+                port=stack_info.port,
+                target_port=stack_info.port,
             )
         )
 

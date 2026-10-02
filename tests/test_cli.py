@@ -172,3 +172,32 @@ def test_cli_node_package_managers(tmp_path):
     df = (bun_dir / "Dockerfile").read_text()
     assert "FROM oven/bun:1-alpine" in df
     assert "RUN bun install" in df
+
+
+def test_cli_multi_service_custom_port(tmp_path):
+    web_dir = tmp_path / "web"
+    web_dir.mkdir()
+    (web_dir / "package.json").write_text(
+        '{"name": "web", "dependencies": {"next": "14.0.0"}}'
+    )
+
+    # Prompts:
+    # 1. service name -> web
+    # 2. subpath -> web
+    # 3. use detected stack -> y
+    # 4. port -> 8080 (custom host port, internal is 3000)
+    # 5. add another service? -> n
+    user_input = "web\nweb\ny\n8080\nn\n"
+    result = runner.invoke(
+        app,
+        ["init", str(tmp_path), "--multi", "--level", "minimal", "--no-readme"],
+        input=user_input,
+    )
+    assert result.exit_code == 0
+    # Internal Dockerfile should expose target port 3000
+    df = (web_dir / "Dockerfile").read_text()
+    assert "EXPOSE 3000" in df
+
+    # Compose should map host_port:target_port -> 8080:3000
+    compose = (tmp_path / "compose.yaml").read_text()
+    assert '"8080:3000"' in compose

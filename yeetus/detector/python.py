@@ -19,7 +19,9 @@ class PythonDetector(BaseDetector):
             )
         ]
 
-        if not any(m.exists() for m in markers) and not any(path.glob("*.py")):
+        if not any(m.exists() for m in markers) and (
+            (path / "package.json").exists() or not any(path.glob("*.py"))
+        ):
             return None
 
         combined_text = ""
@@ -65,7 +67,7 @@ class PythonDetector(BaseDetector):
         # Default fallback for Python
         return StackInfo(
             stack_type="python",
-            framework="flask",
+            framework="python",
             port=5000,
             cmd='["python", "app.py"]',
             env_example="PORT=5000\n",

@@ -125,3 +125,28 @@ def test_detect_python_entrypoints():
 
     django_info = detect_stack(FIXTURES_DIR / "python-django")
     assert django_info.entrypoint == "manage.py"
+
+
+def test_detect_python_generic(tmp_path):
+    (tmp_path / "script.py").write_text("print('hello')")
+    info = detect_stack(tmp_path)
+    assert info is not None
+    assert info.stack_type == "python"
+    assert info.framework == "python"
+    assert info.description == "Python Generic"
+
+    # with_entrypoint preserves generic command instead of flask
+    custom_info = info.with_entrypoint("worker.py")
+    assert custom_info.cmd == '["python", "worker.py"]'
+    assert "flask" not in custom_info.cmd.lower()
+
+
+def test_detect_node_with_python_helper_script(tmp_path):
+    (tmp_path / "package.json").write_text(
+        '{"name": "node-app", "dependencies": {"next": "14.0.0"}}'
+    )
+    (tmp_path / "helper.py").write_text("# Python helper script")
+    info = detect_stack(tmp_path)
+    assert info is not None
+    assert info.stack_type == "node"
+    assert info.framework == "nextjs"
