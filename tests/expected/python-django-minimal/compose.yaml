@@ -1,7 +1,7 @@
 services:
-  web:
+  "web":
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: "."
+      dockerfile: "Dockerfile"
     ports:
       - "8000:8000"

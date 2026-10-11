@@ -8,7 +8,6 @@ from rich.prompt import Confirm, IntPrompt, Prompt
 from rich.table import Table
 
 from yeetus import __version__
-from yeetus.compose_builder import PortCollisionError
 from yeetus.detector import detect_stack
 from yeetus.generator import Generator
 from yeetus.models import ProjectPart, StackInfo
@@ -260,14 +259,19 @@ def init(
             )
         )
 
+    generator = Generator()
+    try:
+        # Use the actual output plan for conflicts and previews, including ignores.
+        generated_files = generator.generate(root_dir, parts, dry_run=True)
+    except ValueError as e:
+        console.print(f"[bold red]Configuration Error:[/bold red] {e}")
+        raise typer.Exit(code=1)
+    if readme:
+        generated_files.append(root_dir / "README.docker.md")
+
     # Check for file conflicts
     if not force and not dry_run:
-        potential = [root_dir / "compose.yaml"]
-        for p in parts:
-            potential.append(p.path / "Dockerfile")
-            if p.level == "full":
-                potential.append(p.path / ".env.example")
-        conflicts = [f for f in potential if f.exists()]
+        conflicts = [f for f in generated_files if f.exists()]
 
         if conflicts:
             console.print(
@@ -280,12 +284,8 @@ def init(
                 raise typer.Abort()
 
     # Generate files
-    generator = Generator()
-    try:
-        generated_files = generator.generate(root_dir, parts, dry_run=dry_run)
-    except PortCollisionError as e:
-        console.print(f"[bold red]Configuration Error:[/bold red] {e}")
-        raise typer.Exit(code=1)
+    if not dry_run:
+        generated_files = generator.generate(root_dir, parts)
 
     # Generate README if requested
     if readme and not dry_run:
@@ -347,7 +347,10 @@ def _resolve_stack(
 
     if info.stack_type == "python":
         py_file = _resolve_python_entrypoint(path, info.framework, entrypoint)
-        info = info.with_entrypoint(py_file)
+        try:
+            info = info.with_entrypoint(py_file)
+        except ValueError as e:
+            raise typer.BadParameter(str(e), param_hint="--entrypoint")
 
     return info
 
@@ -409,6 +412,12 @@ def _generate_readme(root_dir: Path, parts: list[ProjectPart]) -> Path:
         )
     lines.extend(
         [
+            "",
+            "## Configuration",
+            "",
+            "Each service has a `.dockerignore` that excludes environment secrets, repository metadata, and local dependencies from the image. Existing custom rules are preserved.",
+            "",
+            "Full services load `.env` when present. Copy and customize each service's `.env.example` to `.env` beside its Dockerfile if the application needs those variables.",
             "",
             "## Quick Start",
             "",

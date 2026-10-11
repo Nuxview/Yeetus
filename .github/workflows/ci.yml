@@ -57,3 +57,25 @@ jobs:
 
       - name: Run Tests
         run: SKIP_DOCKER_BUILD=1 uv run pytest -v
+
+  docker-tests:
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup uv and Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Install Dependencies
+        run: uv sync --all-extras
+
+      - name: Build and Check Containers
+        run: uv run pytest -n 2 tests/test_generation.py tests/test_container_regressions.py

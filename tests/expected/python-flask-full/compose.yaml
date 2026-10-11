@@ -1,11 +1,11 @@
 services:
-  web:
+  "web":
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: "."
+      dockerfile: "Dockerfile"
     ports:
       - "5000:5000"
     env_file:
-      - path: .env
+      - path: ".env"
         required: false
     restart: unless-stopped

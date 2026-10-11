@@ -5,6 +5,8 @@ import subprocess
 import pytest
 
 from tests.conftest import EXPECTED_DIR, FIXTURES_DIR
+from tests.docker_helpers import build_and_check_container
+from yeetus.detector import detect_stack
 from yeetus.generator import generate_for_project
 
 STACKS = [
@@ -34,6 +36,14 @@ def test_generation(stack, level, tmp_path):
             shutil.copytree(item, tmp_path / item.name)
         else:
             shutil.copy2(item, tmp_path / item.name)
+
+    check_exclusions = stack == "static-html"
+    if check_exclusions:
+        (tmp_path / ".env").write_text("REVIEW_SECRET=do-not-publish\n")
+        for directory in (".git", "node_modules", ".venv"):
+            (tmp_path / directory).mkdir()
+            (tmp_path / directory / "review-secret").write_text("do-not-publish")
+        (tmp_path / "Dockerfile.dockerignore").write_text("# Custom rules\n!.env\n")
 
     # 2. Run yeetus against it
     generate_for_project(project_dir=tmp_path, level=level, service_name="web")
@@ -75,16 +85,12 @@ def test_generation(stack, level, tmp_path):
         f"STDOUT: {compose_proc.stdout}\nSTDERR: {compose_proc.stderr}"
     )
 
-    # 6. Run `docker build` and assert exit 0 (can skip build if SKIP_DOCKER_BUILD=1)
+    # 6. Build and start the image; poll HTTP and full-mode healthchecks.
     if os.environ.get("SKIP_DOCKER_BUILD") != "1":
-        build_proc = subprocess.run(
-            ["docker", "build", "-t", f"yeetus-test-{stack}-{level}", "."],
-            cwd=tmp_path,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        assert build_proc.returncode == 0, (
-            f"`docker build` failed for {stack}-{level}:\n"
-            f"STDOUT: {build_proc.stdout}\nSTDERR: {build_proc.stderr}"
+        build_and_check_container(
+            tmp_path,
+            f"yeetus-test-{stack}-{level}",
+            detect_stack(tmp_path).port,
+            full=level == "full",
+            check_exclusions=check_exclusions,
         )

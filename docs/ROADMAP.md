@@ -26,7 +26,7 @@
 
 > All tests must be written and failing before any implementation begins.
 
-### Fixtures — Dummy Repos
+### Fixtures — Runnable Test Repos
 - [x] `tests/fixtures/python-flask/`
 - [x] `tests/fixtures/python-fastapi/`
 - [x] `tests/fixtures/python-django/`
@@ -61,6 +61,10 @@
   - [x] Content matches snapshots
   - [x] `docker compose config` passes
   - [x] `docker build` passes
+  - [x] Containers serve HTTP and full-mode healthchecks pass
+  - [x] Static images exclude secrets and local dependency directories
+- [x] Regression tests for custom entrypoints, overwrite protection, names, YAML paths, and ignore rules
+- [x] Container tests for Python manifest formats and alternative Node package managers
 
 ---
 
@@ -100,9 +104,13 @@
 - [x] `generator.py` — renders Jinja2 templates to files
 - [x] `compose_builder.py` — builds unified `ComposeConfig` from all `ProjectPart`s, handles:
   - [x] Inter-service `depends_on`
-  - [x] Shared networks and volumes
-  - [x] Cross-service env var references
+  - [ ] Explicit shared network and volume configuration
+  - [ ] Cross-service environment variable configuration
   - [x] Port collision detection
+  - [x] Unique and valid service name validation
+  - [x] Quoted YAML paths
+  - [x] Manifest-aware Python installation
+  - [x] `.dockerignore` generation with preserved custom rules and Dockerfile-specific overrides
 
 ### CLI (`cli.py`)
 - [x] `init` command entry point
@@ -126,8 +134,11 @@
 
 - [x] `--dry-run` flag (preview output without writing files)
 - [x] `--no-detection` flag (skip auto-detection, prompt for everything)
-- [x] Conflict handling (warn if Dockerfile already exists)
-- [x] README generation per part
+- [x] Conflict handling for all outputs, including Docker READMEs and ignore files
+- [x] Unified `README.docker.md` generation at the project root
+- [x] Custom Flask entrypoints and nested FastAPI module paths
+- [x] Next.js build steps and Node development dependency installation
+- [x] Writable runtime paths for full Node and static Nginx containers
 - [x] Proper CLI help text and `--version`
 
 ---

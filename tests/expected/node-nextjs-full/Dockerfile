@@ -1,6 +1,5 @@
 FROM node:20-alpine
 
-ENV NODE_ENV=production
 
 WORKDIR /app
 
@@ -9,6 +8,10 @@ RUN npm install
 
 COPY . .
 
+RUN ./node_modules/.bin/next build
+ENV NODE_ENV=production
+
+RUN chown -R node:node /app
 USER node
 
 EXPOSE 3000

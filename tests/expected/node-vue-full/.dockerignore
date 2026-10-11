@@ -1,0 +1,21 @@
+# Yeetus: build context exclusions
+**/.git
+**/.env
+**/.env.*
+!**/.env.example
+**/.aws
+**/.ssh
+**/.npmrc
+**/.pypirc
+**/.venv
+**/venv
+**/node_modules
+**/__pycache__
+**/*.py[cod]
+**/.pytest_cache
+**/.ruff_cache
+**/.next
+Dockerfile
+Dockerfile.dockerignore
+compose.yaml
+README.docker.md

@@ -1,5 +1,6 @@
 import contextlib
 import json
+import re
 from pathlib import Path
 
 from yeetus.detector.base import BaseDetector
@@ -45,6 +46,14 @@ class NodeDetector(BaseDetector):
             deps.update(data.get("devDependencies", {}))
 
         package_manager = self.detect_package_manager(path, data)
+        package_manager_version = ""
+        declaration = data.get("packageManager", "")
+        if isinstance(declaration, str) and declaration.startswith(
+            f"{package_manager}@"
+        ):
+            version = declaration.split("@", 1)[1].split("+", 1)[0]
+            if re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.-]+)?", version):
+                package_manager_version = version
 
         for dep, framework, port, cmd, desc in FRAMEWORKS:
             if dep in deps:
@@ -64,4 +73,5 @@ class NodeDetector(BaseDetector):
             cmd=cmd,
             env_example=f"NODE_ENV=production\nPORT={port}\n",
             description=desc,
+            package_manager_version=package_manager_version,
         ).with_package_manager(package_manager)

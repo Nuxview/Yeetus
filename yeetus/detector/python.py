@@ -6,6 +6,21 @@ from yeetus.detector.base import BaseDetector
 from yeetus.models import StackInfo
 
 
+def detect_python_dependencies(path: Path) -> str:
+    """Select installation from the project's manifests, including script-only projects."""
+    if (path / "uv.lock").is_file() and (path / "pyproject.toml").is_file():
+        return "uv"
+    if (path / "requirements.txt").is_file():
+        return "requirements"
+    if (path / "pyproject.toml").is_file() or (path / "uv.lock").is_file():
+        return "uv"
+    if (path / "Pipfile").is_file():
+        return "pipenv"
+    if (path / "setup.py").is_file():
+        return "setup"
+    return "none"
+
+
 class PythonDetector(BaseDetector):
     def detect(self, path: Path) -> StackInfo | None:
         markers = [
@@ -40,7 +55,7 @@ class PythonDetector(BaseDetector):
                 env_example="PORT=8000\nHOST=0.0.0.0\n",
                 description="Python (FastAPI)",
                 entrypoint="main.py",
-            )
+            ).with_entrypoint("main.py")
         elif re.search(r"(?i)\bflask\b", combined_text):
             return StackInfo(
                 stack_type="python",
@@ -50,7 +65,7 @@ class PythonDetector(BaseDetector):
                 env_example="FLASK_APP=app.py\nFLASK_ENV=production\nPORT=5000\n",
                 description="Python (Flask)",
                 entrypoint="app.py",
-            )
+            ).with_entrypoint("app.py")
         elif (
             re.search(r"(?i)\bdjango\b", combined_text) or (path / "manage.py").exists()
         ):

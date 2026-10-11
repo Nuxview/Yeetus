@@ -2,9 +2,9 @@
 
 > An open-source, upgraded alternative to Docker Desktop's proprietary `docker init` CLI tool, built for developers running standalone Docker Engine on Linux and multi-service architectures.
 
-[![Tests](https://img.shields.io/badge/tests-44%20passed-brightgreen.svg)]()
+[![Tests](https://github.com/Nuxview/Yeetus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nuxview/Yeetus/actions/workflows/ci.yml)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Python: >=3.11](https://img.shields.io/badge/python-%3E%3D3.11-blue.svg)](https://www.python.org/)
+[![Python: >=3.10](https://img.shields.io/badge/python-%3E%3D3.10-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
@@ -23,16 +23,18 @@ Docker Desktop includes a handy `docker init` command that scaffolds Docker asse
 ## Key Features
 
 - **Multi-Service Project Scaffolding**: Configure multiple services in a single run (e.g. frontend, API, worker) with distinct tech stacks, subdirectories, and inter-service dependencies (`depends_on`).
-- **Unified Docker Compose Generation**: Builds a unified in-memory `ComposeConfig` that validates port collisions, resolves relative directory contexts, and renders a single, clean `compose.yaml`.
+- **Unified Docker Compose Generation**: Builds an in-memory `ComposeConfig` that validates unique service names and port collisions, quotes relative directory paths, and renders a single `compose.yaml`.
 - **Intelligent Tech Stack & Framework Detection**:
-  - **Python**: Detects Flask, FastAPI, Django, and generic Python from `requirements.txt`, `pyproject.toml`, `uv.lock`, and project markers.
+  - **Python**: Detects Flask, FastAPI, Django, and generic Python; chooses installation from `requirements.txt`, `pyproject.toml`/`uv.lock`, `Pipfile`, or `setup.py`. Scripts without a dependency manifest skip installation.
   - **Node.js**: Detects Next.js, React, Vite, Vue, and generic Node by inspecting dependencies in `package.json`.
   - **Package Manager Detection**: Scans for `packageManager` declarations and lockfiles to configure **npm**, **pnpm**, **yarn**, or **bun**.
   - **Static Web**: Detects static sites and provisions optimized Nginx containers.
-- **Python Entrypoint Prompting**: Identifies entrypoints like `app.py`, `manage.py`, or `main.py` and prompts the user, seamlessly configuring WSGI/ASGI commands (`uvicorn`, `flask run`, etc.) and environment variables.
+- **Python Entrypoint Prompting**: Configures custom Flask entrypoints in both levels and preserves nested FastAPI modules (for example, `src/api.py` becomes `src.api:app`).
+- **Build Context Exclusions**: Generates `.dockerignore` rules for environment secrets, repository metadata, and local dependency directories. Preserves existing custom rules and appends the exclusions to an existing `Dockerfile.dockerignore` too.
+- **Node Build Steps**: Installs development dependencies needed by Vite and Vue scripts and compiles Next.js before its production start command.
 - **Configurable Boilerplate Levels**:
   - `minimal`: Lightweight, fast development Dockerfiles (base image, dependencies, copy, port, entrypoint).
-  - `full`: Production-grade containerization with non-root unprivileged users, file permissions, layer caching, `HEALTHCHECK` definitions, and `.env.example` templates.
+  - `full`: Adds non-root users, writable application directories, dependency layer caching where applicable, `HEALTHCHECK` definitions, and `.env.example` templates. Static Nginx services use writable PID and cache directories.
 - **Modern Interactive CLI**:
   - Interactive prompts powered by [Rich](https://github.com/Textualize/rich) and [Typer](https://github.com/tiangolo/typer).
   - Rich summary tables, dry-run previews, conflict warnings before overwriting, and automated documentation generation (`README.docker.md`).
@@ -43,7 +45,7 @@ Docker Desktop includes a handy `docker init` command that scaffolds Docker asse
 
 | Stack | Frameworks | Package Managers | Levels |
 |---|---|---|---|
-| **Python** | Flask, FastAPI, Django, Generic | pip, uv | Minimal, Full |
+| **Python** | Flask, FastAPI, Django, Generic | pip, uv, Pipenv | Minimal, Full |
 | **Node.js** | Next.js, React, Vite, Vue, Generic | npm, pnpm, yarn, bun | Minimal, Full |
 | **Static HTML** | Static Sites (Nginx) | N/A | Minimal, Full |
 
@@ -52,7 +54,7 @@ Docker Desktop includes a handy `docker init` command that scaffolds Docker asse
 ## Installation
 
 ### Prerequisites
-- Python 3.11+
+- Python 3.10+ (for the Yeetus CLI; generated Python images default to 3.12)
 - Docker & Docker Compose (Docker Engine 20.10+ / Compose v2.24+)
 
 ### Install from Source
@@ -77,14 +79,14 @@ Run `yeetus init` in your project root:
 ```bash
 yeetus init
 ```
-Yeetus will automatically detect your tech stack, present its findings, prompt for configuration options (such as boilerplate level and entrypoint), and generate your Dockerfile and `compose.yaml`.
+Yeetus detects your tech stack, presents its findings, prompts for configuration options, and generates `Dockerfile`, `.dockerignore`, `compose.yaml`, and `README.docker.md`. Full mode also generates `.env.example`. Existing output files, including the Docker README and ignore files, require overwrite confirmation unless `--force` is set.
 
 ### 2. Multi-Service Projects
 To configure multi-service monorepos:
 ```bash
 yeetus init --multi
 ```
-You can name each service, point to its subdirectory, configure inter-service `depends_on`, and wire everything into one cohesive `compose.yaml`.
+Name each service, point to its subdirectory, configure `depends_on`, and choose its host port. Names must be unique and contain letters, digits, underscores, dots, or hyphens, starting with a letter or digit. Changing a host port preserves the framework's internal port, for example `8080:3000` for Next.js.
 
 ### 3. Non-Interactive / Scriptable CLI
 Yeetus provides flags for CI/CD and scripted environments:
@@ -102,11 +104,32 @@ yeetus init --no-detection
 yeetus init --force
 ```
 
-### 4. Running Your Container
+### 4. Dependency Installation and Entrypoints
+
+Python installation follows this order:
+
+| Project files | Generated installation |
+|---|---|
+| `pyproject.toml` and `uv.lock` | `uv sync --locked --no-dev --no-editable` |
+| `requirements.txt` | `pip install -r requirements.txt` |
+| `pyproject.toml` | `uv sync --no-dev --no-editable` |
+| `Pipfile` | Pipenv system installation; uses deploy mode when `Pipfile.lock` exists |
+| `setup.py` | `pip install .` |
+| Python scripts only | No dependency installation |
+
+An orphan `uv.lock` requires its `pyproject.toml`. The uv environment is created at `/opt/venv` and added to `PATH`. Project files must be available within the service's build context, including any local dependencies.
+
+Flask receives `--app <entrypoint>` directly. FastAPI expects an `app` object and a file path relative to the service directory, such as `--entrypoint src/api.py`.
+
+Next.js images run the local Next.js build executable before startup. Node images install development dependencies before setting full mode's `NODE_ENV=production`. pnpm uses the semantic version declared in `packageManager`, or pnpm 9 when no version is declared. Vite, React, and Vue keep their detected `dev`, `start`, or `serve` scripts; full mode adds container safeguards while retaining those application commands.
+
+### 5. Running Your Container
 Once files are generated, launch your services:
 ```bash
 docker compose up --build
 ```
+
+Full mode loads `.env` when present. Copy and customize `.env.example` if your application needs these variables. Generated ignore rules exclude `.env` and `.env.*` while allowing `.env.example`; they also exclude `.git`, `.aws`, `.ssh`, `.npmrc`, `.pypirc`, virtual environments, and `node_modules`. Custom ignore rules remain at the start of each file, followed by Yeetus' exclusions. Configure build secrets separately when dependency installation requires private registry credentials.
 
 ---
 
@@ -133,19 +156,25 @@ Options:
 
 ## Development & Testing
 
-Yeetus is built with Test-Driven Development (TDD). Every supported stack and level is validated against snapshot outputs and tested with `docker compose config` and `docker build`.
+The suite checks CLI behavior, regression cases, snapshots, and `docker compose config`. Docker-enabled runs also build images, start containers on dynamically allocated localhost ports, check HTTP responses and full-mode healthchecks, and remove test containers. Static image checks verify that secret files and local dependencies are excluded. Additional containers cover Python dependency formats, custom entrypoints, and Node package managers.
 
 ### Run Test Suite
 ```bash
 # Sync dependencies
 uv sync --all-extras
 
-# Run all unit and snapshot tests (skipping container image build)
+# Run unit, regression, snapshot, and Compose checks without a Docker daemon
+# (the Docker CLI and Compose plugin are still required)
 SKIP_DOCKER_BUILD=1 uv run pytest
 
-# Run full test suite including live docker builds
-uv run pytest
+# Run the full suite, including image builds and container startup
+# Requires Docker daemon access and network access for dependency downloads
+uv run pytest -n 2
 ```
+
+Test images remain tagged `yeetus-test-*` for inspection. Next.js and Vite fixtures exercise their actual build/server executables; React and Vue fixtures use small HTTP scripts to check package installation, script invocation, ports, and permissions.
+
+GitHub Actions runs the fast suite on Python 3.10–3.13 and a separate Docker build/start job on Python 3.12.
 
 ### Code Style & Quality
 ```bash

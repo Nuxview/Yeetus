@@ -15,17 +15,23 @@ class StackInfo:
     description: str = ""
     package_manager: str = "npm"  # 'npm', 'pnpm', 'yarn', 'bun'
     entrypoint: str = ""
+    package_manager_version: str = ""
 
     def with_entrypoint(self, entrypoint: str) -> "StackInfo":
         if not entrypoint or self.stack_type != "python":
             return self
         new_env = self.env_example
         if self.framework == "fastapi":
-            stem = Path(entrypoint).stem
+            entrypoint_path = Path(entrypoint)
+            if entrypoint_path.is_absolute() or ".." in entrypoint_path.parts:
+                raise ValueError(
+                    "FastAPI entrypoints must be relative to the project directory"
+                )
+            module = entrypoint_path.with_suffix("").as_posix().replace("/", ".")
             cmd = json.dumps(
                 [
                     "uvicorn",
-                    f"{stem}:app",
+                    f"{module}:app",
                     "--host",
                     "0.0.0.0",
                     "--port",
@@ -42,6 +48,8 @@ class StackInfo:
                     "python",
                     "-m",
                     "flask",
+                    "--app",
+                    entrypoint,
                     "run",
                     "--host=0.0.0.0",
                     f"--port={self.port}",

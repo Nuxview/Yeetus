@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 
@@ -58,18 +59,21 @@ def test_multi_project_generation(tmp_path):
     compose_path = tmp_path / "compose.yaml"
     assert compose_path.exists()
     compose_content = compose_path.read_text()
-    assert "api:" in compose_content
-    assert "context: backend" in compose_content
-    assert "web:" in compose_content
-    assert "context: frontend" in compose_content
-    assert "- api" in compose_content
+    assert '"api":' in compose_content
+    assert 'context: "backend"' in compose_content
+    assert '"web":' in compose_content
+    assert 'context: "frontend"' in compose_content
+    assert '- "api"' in compose_content
 
     # Run `docker compose config`
     proc = subprocess.run(
-        ["docker", "compose", "config"],
+        ["docker", "compose", "config", "--format", "json"],
         cwd=tmp_path,
         capture_output=True,
         text=True,
         check=False,
     )
     assert proc.returncode == 0, f"`docker compose config` failed:\n{proc.stderr}"
+    services = json.loads(proc.stdout)["services"]
+    assert set(services) == {"api", "web"}
+    assert services["web"]["depends_on"]["api"]["condition"] == "service_started"

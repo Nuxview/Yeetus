@@ -2,7 +2,7 @@
   "name": "dummy-vue",
   "version": "1.0.0",
   "scripts": {
-    "serve": "vue-cli-service serve"
+    "serve": "node server.js"
   },
   "dependencies": {
     "vue": "^3.4.0"

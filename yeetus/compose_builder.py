@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 from yeetus.models import ComposeConfig, ComposeServiceConfig, ProjectPart
@@ -15,6 +16,14 @@ class ComposeBuilder:
     def build(self, parts: list[ProjectPart]) -> ComposeConfig:
         allocated_ports: dict[int, str] = {}
         services: list[ComposeServiceConfig] = []
+        names: set[str] = set()
+
+        for part in parts:
+            if part.name in names:
+                raise ValueError(f"Duplicate service name: '{part.name}'")
+            if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*", part.name):
+                raise ValueError(f"Invalid Compose service name: '{part.name}'")
+            names.add(part.name)
 
         for part in parts:
             host_port = part.get_port()
