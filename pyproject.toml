@@ -1,0 +1,30 @@
+[project]
+name = "yeetus"
+version = "0.1.0"
+description = "A FOSS, upgraded alternative to docker init with multi-service support and stack detection"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "jinja2>=3.1.0",
+]
+
+[project.scripts]
+yeetus = "yeetus.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-xdist>=3.5.0",
+    "ruff>=0.4.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

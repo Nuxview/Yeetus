@@ -1,0 +1,10 @@
+{
+  "name": "dummy-react",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "react": "18.3.0"
+  }
+}
